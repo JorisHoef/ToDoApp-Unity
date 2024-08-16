@@ -7,7 +7,7 @@ namespace JorisHoef.UI.HoverSystem
 {
     public class Tweener
     {
-        public void AllTweenis(List<IUiTween> uiTweens)
+        public void TweenAll(List<IUiTween> uiTweens)
         {
             foreach (var graphic in uiTweens)
             {
