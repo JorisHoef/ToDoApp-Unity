@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ namespace JorisHoef.UI.HoverSystem
 
         [Header("Tween Settings")]
         [SerializeField] private float _tweenDuration = 0.5f;
+        [SerializeField] private AnimationCurve _ease;
         
         private readonly Tweener _tweener = new Tweener();
         private bool _isSelected;
@@ -92,19 +94,19 @@ namespace JorisHoef.UI.HoverSystem
         private void SetSelected()
         {
             List<IUiTween> uiTweens = this.SetUITweens(this._selectedMaterial);
-            this._tweener.TweenAll(uiTweens);
+            this._tweener.TweenAll(uiTweens, this._ease);
         }
 
         private void Deselect()
         {
             List<IUiTween> uiTweens = this.SetUITweens(this._defaultMaterial);
-            this._tweener.TweenAll(uiTweens);
+            this._tweener.TweenAll(uiTweens, this._ease);
         }
 
         private void SetHover()
         {
             List<IUiTween> uiTweens = this.SetUITweens(this._hoverMaterial);
-            this._tweener.TweenAll(uiTweens);
+            this._tweener.TweenAll(uiTweens, this._ease);
         }
         
         private Color GetContrastingColor(Color backgroundColor)

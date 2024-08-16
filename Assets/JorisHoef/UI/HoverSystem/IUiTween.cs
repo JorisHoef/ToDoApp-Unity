@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,20 +8,21 @@ namespace JorisHoef.UI.HoverSystem
 {
     public class Tweener
     {
-        public void TweenAll(List<IUiTween> uiTweens)
+        public void TweenAll(List<IUiTween> uiTweens, AnimationCurve easeType)
         {
             foreach (var graphic in uiTweens)
             {
-                graphic.DoTween();
+                graphic.DoTween(easeType);
             }
         }
     }
     
     public interface IUiTween
     {
-        public void DoTween();
+        public void DoTween(AnimationCurve ease);
     };
     
+    [Serializable]
     public class ColorTween : IUiTween
     {
         private Graphic _graphic;
@@ -34,9 +36,9 @@ namespace JorisHoef.UI.HoverSystem
             this._duration = duration;
         }
         
-        public void DoTween()
+        public void DoTween(AnimationCurve ease)
         {
-            this._graphic.DOColor(this._targetColor, this._duration);
+            this._graphic.DOColor(this._targetColor, this._duration).SetEase(ease);
         }
     }
 
