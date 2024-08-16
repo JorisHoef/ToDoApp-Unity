@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -24,9 +23,8 @@ namespace JorisHoef.UI.HoverSystem
         [Header("Tween Settings")]
         [SerializeField] private float _tweenDuration = 0.5f;
         
+        private readonly Tweener _tweener = new Tweener();
         private bool _isSelected;
-
-        private List<Graphic> AllGraphics => this._images.Concat(this._invertedImages).ToList();
         
         public void SetSelection(bool isSelected)
         {
@@ -74,12 +72,9 @@ namespace JorisHoef.UI.HoverSystem
                 this.Deselect();
             }
         }
-
-        private Tweener _tweener = new Tweener();
         
-        private void SetSelected()
+        private List<IUiTween> SetUITweens(Color targetColor)
         {
-            var targetColor = ColorManager.Instance.GetColor(this._selectedMaterial);
             var uiTweens = new List<IUiTween>();
             foreach (var graphic in this._images)
             {
@@ -91,44 +86,25 @@ namespace JorisHoef.UI.HoverSystem
                 var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
                 uiTweens.Add(colorTween);
             }
-            
-            this._tweener.AllTweenis(uiTweens);
+            return uiTweens;
+        }
+        
+        private void SetSelected()
+        {
+            List<IUiTween> uiTweens = this.SetUITweens(this._selectedMaterial);
+            this._tweener.TweenAll(uiTweens);
         }
 
         private void Deselect()
         {
-            var targetColor = ColorManager.Instance.GetColor(this._defaultMaterial);
-            var uiTweens = new List<IUiTween>();
-            foreach (var graphic in this._images)
-            {
-                var colorTween = new ColorTween(graphic, targetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            foreach (var invertedGraphic in this._invertedImages)
-            {
-                var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            
-            this._tweener.AllTweenis(uiTweens);
+            List<IUiTween> uiTweens = this.SetUITweens(this._defaultMaterial);
+            this._tweener.TweenAll(uiTweens);
         }
 
         private void SetHover()
         {
-            var targetColor = ColorManager.Instance.GetColor(this._hoverMaterial);
-            var uiTweens = new List<IUiTween>();
-            foreach (var graphic in this._images)
-            {
-                var colorTween = new ColorTween(graphic, targetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            foreach (var invertedGraphic in this._invertedImages)
-            {
-                var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            
-            this._tweener.AllTweenis(uiTweens);
+            List<IUiTween> uiTweens = this.SetUITweens(this._hoverMaterial);
+            this._tweener.TweenAll(uiTweens);
         }
         
         private Color GetContrastingColor(Color backgroundColor)
