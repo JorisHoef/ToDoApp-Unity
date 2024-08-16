@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -94,16 +93,6 @@ namespace JorisHoef.UI.HoverSystem
             }
             
             this._tweener.AllTweenis(uiTweens);
-            //this._tweener.TweenAll();
-            // var targetColor = ColorManager.Instance.GetColor(this._selectedMaterial);
-            // foreach (var image in this._images)
-            // {
-            //     image.DOColor(targetColor, this._tweenDuration);
-            // }
-            // foreach (var invertedImage in this._invertedImages)
-            // {
-            //     invertedImage.DOColor(this.GetContrastingColor(targetColor), this._tweenDuration);
-            // }
         }
 
         private void Deselect()
@@ -122,16 +111,6 @@ namespace JorisHoef.UI.HoverSystem
             }
             
             this._tweener.AllTweenis(uiTweens);
-            //this._tweener.AllTweenis(AllGraphics, targetColor, this._tweenDuration);
-            // var targetColor = ColorManager.Instance.GetColor(this._defaultMaterial);
-            // foreach (var image in this._images)
-            // {
-            //     image.DOColor(targetColor, this._tweenDuration);
-            // }
-            // foreach (var invertedImage in this._invertedImages)
-            // {
-            //     invertedImage.DOColor(this.GetContrastingColor(targetColor), this._tweenDuration);
-            // }
         }
 
         private void SetHover()
@@ -150,15 +129,6 @@ namespace JorisHoef.UI.HoverSystem
             }
             
             this._tweener.AllTweenis(uiTweens);
-            //this._tweener.AllTweenis(AllGraphics, targetColor, this._tweenDuration);
-            // foreach (var image in this._images)
-            // {
-            //     image.DOColor(targetColor, this._tweenDuration);
-            // }
-            // foreach (var invertedImage in this._invertedImages)
-            // {
-            //     invertedImage.DOColor(this.GetContrastingColor(targetColor), this._tweenDuration);
-            // }
         }
         
         private Color GetContrastingColor(Color backgroundColor)
