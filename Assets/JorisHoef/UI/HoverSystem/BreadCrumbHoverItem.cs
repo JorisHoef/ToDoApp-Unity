@@ -143,7 +143,7 @@ namespace JorisHoef.UI.HoverSystem
                 //Each amount == % increment
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
-                float interpolationFactor = (float)(i - 1) / (this._chainItems.Count);
+                float interpolationFactor = (float)(i) / (this._chainItems.Count);
                 
                 Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
 
