@@ -15,9 +15,12 @@ namespace JorisHoef.UI.HoverSystem
         public event Action<IHoverable> OnSelected;
 
         [SerializeField] private bool _invertBreadcrumb;
+        
+        [Header("Non-Chaining Graphics")]
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
 
+        [Header("Chaining Graphics")]
         [SerializeField] private Graphic _startChainItem;
         [SerializeField] private Graphic _endChainItem;
         

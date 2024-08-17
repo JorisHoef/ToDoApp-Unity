@@ -17,7 +17,7 @@ namespace JorisHoef.UI.HoverSystem
         private Color _targetColor;
         private float _tweenDuration;
 
-        public bool IsInverted => this.GetComponent<TMP_Text>();
+        private bool IsInverted => this.GetComponent<TMP_Text>();
 
         private void Awake()
         {
