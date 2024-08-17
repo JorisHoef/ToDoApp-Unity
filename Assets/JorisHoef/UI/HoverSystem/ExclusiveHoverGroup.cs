@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace JorisHoef.UI.HoverSystem
 {
@@ -13,6 +14,14 @@ namespace JorisHoef.UI.HoverSystem
             foreach (var buttonHover in this._hoverItems)
             { 
                 buttonHover.OnSelected += this.ResetOtherButtonHovers;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var buttonHover in this._hoverItems)
+            { 
+                buttonHover.OnSelected -= this.ResetOtherButtonHovers;
             }
         }
 
