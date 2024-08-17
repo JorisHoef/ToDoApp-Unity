@@ -41,10 +41,10 @@ namespace JorisHoef.UI.HoverSystem
             {
                 return;
             }
-            SetInbetweenerChain(this._startChainItem, this._endChainItem);
+            this.SetItemChain(this._startChainItem, this._endChainItem);
         }
         
-        private void SetInbetweenerChain(Component startItem, Component endItem)
+        private void SetItemChain(Component startItem, Component endItem)
         {
             for (int i = 0; i < startItem.transform.parent.childCount; i++)
             {
@@ -142,13 +142,13 @@ namespace JorisHoef.UI.HoverSystem
                 //targetColor argument == 100%
                 //Each amount == % increment
                 int j = this._chainItems.Count - i;
-                HoverItem inBetweener = this._chainItems[j];
+                HoverItem chainItem = this._chainItems[j];
                 float interpolationFactor = (float)(i - 1) / (this._chainItems.Count);
                 
                 Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
 
-                inBetweener.SetColor(newTargetColor, this._tweenDuration);
-                uiTweens.Add(inBetweener.SetAndGetTweens());
+                chainItem.SetColor(newTargetColor, this._tweenDuration);
+                uiTweens.Add(chainItem.SetAndGetTweens());
             }
             return uiTweens;
         }
