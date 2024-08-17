@@ -14,11 +14,10 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<IHoverable> OnSelected;
         
-        [SerializeField] private Graphic[] _graphics;
-        [SerializeField] private Graphic[] _invertedGraphics;
-        [SerializeField] private Graphic[] _inBetweeners;
-        [SerializeField] private Graphic[] _invertedInBetweeners;
-        
+        [SerializeField] private HoverItem[] _graphics;
+        [SerializeField] private HoverItem[] _invertedGraphics;
+        [SerializeField] private HoverItem[] _inBetweeners;
+
         [Header("Colours")]
         [SerializeField] private Color _selectedMaterial;
         [SerializeField] private Color _defaultMaterial;
@@ -94,18 +93,19 @@ namespace JorisHoef.UI.HoverSystem
             }
         }
         
-        private List<IUiTween> SetUITweens(Color targetColor)
+        private List<List<IUiTween>> SetUITweens(Color targetColor)
         {
-            var uiTweens = new List<IUiTween>();
-            foreach (var graphic in this._graphics)
+            var uiTweens = new List<List<IUiTween>>();
+            foreach (var hoverItem in this._graphics)
             {
-                var colorTween = new ColorTween(graphic, targetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
+                hoverItem.SetColor(targetColor, this._tweenDuration);
+                uiTweens.Add(hoverItem.SetAndGetTweens());
             }
-            foreach (var invertedGraphic in this._invertedGraphics)
+            
+            foreach (var invertedHoverItem in this._invertedGraphics)
             {
-                var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
-                uiTweens.Add(colorTween);
+                invertedHoverItem.SetColor(targetColor, this._tweenDuration);
+                uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
             
             for (int i = 1; i <= this._inBetweeners.Length; i++)
@@ -114,57 +114,42 @@ namespace JorisHoef.UI.HoverSystem
                 //targetColor argument == 100%
                 //Each amount == % increment
                 int j = this._inBetweeners.Length - i;
-                Graphic inBetweener = this._inBetweeners[j];
+                HoverItem inBetweener = this._inBetweeners[j];
                 float interpolationFactor = (float)(i - 1) / (this._inBetweeners.Length);
                 
                 Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
 
-                var colorTween = new ColorTween(inBetweener, newTargetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            
-            for (int i = 1; i <= this._invertedInBetweeners.Length; i++)
-            {
-                //Length == 100%
-                //targetColor argument == 100%
-                //Each amount == % increment
-                int j = this._invertedInBetweeners.Length - i;
-                Graphic inBetweener = this._invertedInBetweeners[j];
-                float interpolationFactor = (float)(i - 1) / (this._invertedInBetweeners.Length);
-                
-                Color newTargetColor = Color.Lerp(this._defaultMaterial, this.GetContrastingColor(targetColor), interpolationFactor);
-
-                var colorTween = new ColorTween(inBetweener, newTargetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
+                inBetweener.SetColor(newTargetColor, this._tweenDuration);
+                uiTweens.Add(inBetweener.SetAndGetTweens());
             }
             return uiTweens;
         }
         
         private void SetSelected()
         {
-            List<IUiTween> uiTweens = this.SetUITweens(this._selectedMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
+            List<List<IUiTween>> selected = SetUITweens(this._selectedMaterial);
+            foreach (var uiTweens in selected)
+            {
+                this._tweener.TweenAll(uiTweens, this._ease);   
+            }
         }
 
         private void Deselect()
         {
-            List<IUiTween> uiTweens = this.SetUITweens(this._defaultMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
+            List<List<IUiTween>> deselected = SetUITweens(this._defaultMaterial);
+            foreach (var uiTweens in deselected)
+            {
+                this._tweener.TweenAll(uiTweens, this._ease);   
+            }
         }
 
         private void SetHover()
         {
-            List<IUiTween> uiTweens = this.SetUITweens(this._hoverMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
-        }
-        
-        private Color GetContrastingColor(Color backgroundColor)
-        {
-            // Calculate the relative luminance of the color
-            float luminance = ((0.299f * backgroundColor.r) + (0.587f * backgroundColor.g) + (0.114f * backgroundColor.b));
-
-            // Return black or white based on luminance
-            return luminance > 0.5f ? Color.black : Color.white;
+            List<List<IUiTween>> hovered = SetUITweens(this._hoverMaterial);
+            foreach (var uiTweens in hovered)
+            {
+                this._tweener.TweenAll(uiTweens, this._ease);   
+            }
         }
     }
 }

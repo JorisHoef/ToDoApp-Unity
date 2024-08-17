@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JorisHoef.UI.HoverSystem
@@ -9,123 +8,55 @@ namespace JorisHoef.UI.HoverSystem
     /// <summary>
     /// Basic HoverItem component, will tween assigned graphics to and from the assigned colors
     /// </summary>
-    public class HoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IHoverable
+    [RequireComponent(typeof(Graphic))]
+    public class HoverItem : MonoBehaviour
     {
-        public event Action<IHoverable> OnSelected;
+        [SerializeField] private bool _isInverted;
         
-        [SerializeField] private Graphic[] _graphics;
-        [SerializeField] private Graphic[] _invertedGraphics;
-
-        [Header("Colours")]
-        [SerializeField] private Color _selectedMaterial;
-        [SerializeField] private Color _defaultMaterial;
-        [SerializeField] private Color _hoverMaterial;
-
-        [Header("Tween Settings")]
-        [SerializeField] private float _tweenDuration = 0.5f;
-        [SerializeField] private AnimationCurve _ease;
+        private Graphic _graphic;
+        private Graphic[] _childGraphics;
+        private Color _targetColor;
+        private float _tweenDuration;
         
-        private readonly Tweener _tweener = new Tweener();
-        private bool _isSelected;
-        private bool _isHovered;
-        
-        public void SetSelection(bool isSelected)
+        private void Awake()
         {
-            this._isSelected = isSelected;
-            this.UpdateState();
+            this._graphic = this.GetComponent<Graphic>();
+            this._childGraphics = this.GetComponentsInChildren<Graphic>().Where(c => c.gameObject != this.gameObject).ToArray(); //Exclude self
         }
-
-        public void OnPointerEnter(PointerEventData eventData)
+        
+        public void SetColor(Color color, float tweenDuration)
         {
-            this._isHovered = true;
-            if (!this._isSelected)
-            {
-                this.SetHover();
-            }
+            this._targetColor = color;
+            this._tweenDuration = tweenDuration;
         }
-
-        public void OnPointerExit(PointerEventData eventData)
+        
+        public List<IUiTween> SetAndGetTweens()
         {
-            this._isHovered = false;
-            if (this._isSelected)
+            Color newTarget;
+            if (this._isInverted)
             {
-                this.SetSelected();
+                newTarget = GetContrastingColor(this._targetColor);
             }
             else
             {
-                this.Deselect();
-            }
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (this._isSelected)
-            {
-                SetSelection(false);
-                return;
+                newTarget = this._targetColor;
             }
             
-            if (OnSelected == null)
+            var colorTween = new ColorTween(this._graphic, newTarget, this._tweenDuration);
+            List<IUiTween> uiTweens = new List<IUiTween>
             {
-                SetSelection(true);
-            }
-            else
+                    colorTween
+            };
+            
+            foreach (var invertedGraphic in this._childGraphics)
             {
-                this.OnSelected.Invoke(this);
-            }
-        }
-
-        private void UpdateState()
-        {
-            if (this._isSelected)
-            {
-                this.SetSelected();
-            }
-            else if (this._isHovered)
-            {
-                this.SetHover();
-            }
-            else
-            {
-                this.Deselect();
-            }
-        }
-        
-        private List<IUiTween> SetUITweens(Color targetColor)
-        {
-            var uiTweens = new List<IUiTween>();
-            foreach (var graphic in this._graphics)
-            {
-                var colorTween = new ColorTween(graphic, targetColor, this._tweenDuration);
-                uiTweens.Add(colorTween);
-            }
-            foreach (var invertedGraphic in this._invertedGraphics)
-            {
-                var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
+                colorTween = new ColorTween(invertedGraphic, GetContrastingColor(newTarget), this._tweenDuration);
                 uiTweens.Add(colorTween);
             }
             return uiTweens;
         }
         
-        private void SetSelected()
-        {
-            List<IUiTween> uiTweens = this.SetUITweens(this._selectedMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
-        }
-
-        private void Deselect()
-        {
-            List<IUiTween> uiTweens = this.SetUITweens(this._defaultMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
-        }
-
-        private void SetHover()
-        {
-            List<IUiTween> uiTweens = this.SetUITweens(this._hoverMaterial);
-            this._tweener.TweenAll(uiTweens, this._ease);
-        }
-        
-        private Color GetContrastingColor(Color backgroundColor)
+        private static Color GetContrastingColor(Color backgroundColor)
         {
             // Calculate the relative luminance of the color
             float luminance = ((0.299f * backgroundColor.r) + (0.587f * backgroundColor.g) + (0.114f * backgroundColor.b));

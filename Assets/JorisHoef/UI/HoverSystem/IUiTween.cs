@@ -6,18 +6,13 @@ using UnityEngine.UI;
 
 namespace JorisHoef.UI.HoverSystem
 {
-    public static class TweenFunctions
-    {
-        
-    }
-    
     public class Tweener
     {
         public void TweenAll(List<IUiTween> uiTweens, AnimationCurve easeType)
         {
-            foreach (var graphic in uiTweens)
+            foreach (var uiTween in uiTweens)
             {
-                graphic.DoTween(easeType);
+                uiTween.DoTween(easeType);
             }
         }
     }
