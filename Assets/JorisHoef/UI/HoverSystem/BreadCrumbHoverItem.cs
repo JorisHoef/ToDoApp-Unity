@@ -17,6 +17,7 @@ namespace JorisHoef.UI.HoverSystem
         [SerializeField] private Graphic[] _graphics;
         [SerializeField] private Graphic[] _invertedGraphics;
         [SerializeField] private Graphic[] _inBetweeners;
+        [SerializeField] private Graphic[] _invertedInBetweeners;
         
         [Header("Colours")]
         [SerializeField] private Color _selectedMaterial;
@@ -117,6 +118,21 @@ namespace JorisHoef.UI.HoverSystem
                 float interpolationFactor = (float)(i - 1) / (this._inBetweeners.Length);
                 
                 Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
+
+                var colorTween = new ColorTween(inBetweener, newTargetColor, this._tweenDuration);
+                uiTweens.Add(colorTween);
+            }
+            
+            for (int i = 1; i <= this._invertedInBetweeners.Length; i++)
+            {
+                //Length == 100%
+                //targetColor argument == 100%
+                //Each amount == % increment
+                int j = this._invertedInBetweeners.Length - i;
+                Graphic inBetweener = this._invertedInBetweeners[j];
+                float interpolationFactor = (float)(i - 1) / (this._invertedInBetweeners.Length);
+                
+                Color newTargetColor = Color.Lerp(this._defaultMaterial, this.GetContrastingColor(targetColor), interpolationFactor);
 
                 var colorTween = new ColorTween(inBetweener, newTargetColor, this._tweenDuration);
                 uiTweens.Add(colorTween);
