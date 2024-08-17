@@ -14,10 +14,13 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<IHoverable> OnSelected;
         
+        [SerializeField] private bool _hierarchyChain;
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
-        [SerializeField] private HoverItem[] _inBetweeners;
 
+        [SerializeField] private Graphic _startChainItem;
+        [SerializeField] private Graphic _endChainItem;
+        
         [Header("Colours")]
         [SerializeField] private Color _selectedMaterial;
         [SerializeField] private Color _defaultMaterial;
@@ -28,9 +31,48 @@ namespace JorisHoef.UI.HoverSystem
         [SerializeField] private AnimationCurve _ease;
         
         private readonly Tweener _tweener = new Tweener();
+        
+        private List<HoverItem> _chainItems = new List<HoverItem>(); //Gets filled with everything between startChainItem and endChainItem
         private bool _isSelected;
         private bool _isHovered;
+
+        private void Awake()
+        {
+            if (this._startChainItem == null || this._endChainItem == null)
+            {
+                return;
+            }
+            SetInbetweenerChain(this._startChainItem, this._endChainItem);
+        }
         
+        private void SetInbetweenerChain(Component startItem, Component endItem)
+        {
+            //find first child after startitem,
+            //find first parent of enditem
+            
+            for (int i = 0; i < startItem.transform.parent.childCount; i++)
+            {
+                Transform nextItem = startItem.transform.parent.GetChild(i);
+                HoverItem addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
+                this._chainItems.Add(addedComponent);
+                
+                // if (this._hierarchyChain)
+                // {
+                //     for (int j = 0; j < nextItem.childCount; j++)
+                //     {
+                //         nextItem = nextItem.transform.GetChild(j);
+                //         addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
+                //         this._chainItems.Add(addedComponent);
+                //     }
+                // }
+                
+                if (nextItem == endItem.transform.parent)
+                {
+                    break;
+                }
+            }
+        }
+
         public void SetSelection(bool isSelected)
         {
             this._isSelected = isSelected;
@@ -108,14 +150,14 @@ namespace JorisHoef.UI.HoverSystem
                 uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
             
-            for (int i = 1; i <= this._inBetweeners.Length; i++)
+            for (int i = 1; i <= this._chainItems.Count; i++)
             {
                 //Length == 100%
                 //targetColor argument == 100%
                 //Each amount == % increment
-                int j = this._inBetweeners.Length - i;
-                HoverItem inBetweener = this._inBetweeners[j];
-                float interpolationFactor = (float)(i - 1) / (this._inBetweeners.Length);
+                int j = this._chainItems.Count - i;
+                HoverItem inBetweener = this._chainItems[j];
+                float interpolationFactor = (float)(i - 1) / (this._chainItems.Count);
                 
                 Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
 

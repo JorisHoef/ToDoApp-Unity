@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace JorisHoef.UI.HoverSystem
 {
@@ -15,7 +16,7 @@ namespace JorisHoef.UI.HoverSystem
                 hoverItem.OnSelected += this.ResetOtherButtonHovers;
             }
         }
-
+        
         private void OnDestroy()
         {
             foreach (var hoverItem in this._hoverables)
