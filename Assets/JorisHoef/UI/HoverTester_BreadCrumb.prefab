@@ -438,12 +438,8 @@ MonoBehaviour:
   - {fileID: 568199878}
   _invertedGraphics:
   - {fileID: 1275925153}
-  _inBetweeners:
-  - {fileID: 1569222853}
-  - {fileID: 790665452}
-  - {fileID: 1970682397}
-  - {fileID: 1042665870}
-  - {fileID: 728224223}
+  _startChainItem: {fileID: 0}
+  _endChainItem: {fileID: 0}
   _selectedMaterial: {r: 0.4784314, g: 1, b: 0.6, a: 1}
   _defaultMaterial: {r: 1, g: 1, b: 1, a: 1}
   _hoverMaterial: {r: 0, g: 0.058823533, b: 0.5019608, a: 1}
