@@ -1,37 +1,36 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace JorisHoef.UI.HoverSystem
 {
     public class ExclusiveHoverGroup : MonoBehaviour
     {
-        [SerializeField] private HoverItem[] _hoverItems;
+        private IHoverable[] _hoverables;
 
         private void Start()
         {
-            this._hoverItems = this.GetComponentsInChildren<HoverItem>();
+            this._hoverables = this.GetComponentsInChildren<IHoverable>();
             
-            foreach (var buttonHover in this._hoverItems)
+            foreach (var hoverItem in this._hoverables)
             { 
-                buttonHover.OnSelected += this.ResetOtherButtonHovers;
+                hoverItem.OnSelected += this.ResetOtherButtonHovers;
             }
         }
 
         private void OnDestroy()
         {
-            foreach (var buttonHover in this._hoverItems)
+            foreach (var hoverItem in this._hoverables)
             { 
-                buttonHover.OnSelected -= this.ResetOtherButtonHovers;
+                hoverItem.OnSelected -= this.ResetOtherButtonHovers;
             }
         }
 
-        private void ResetOtherButtonHovers(HoverItem selectedHoverItem)
+        private void ResetOtherButtonHovers(IHoverable selectedHoverItem)
         {
-            foreach (var buttonHover in this._hoverItems)
+            foreach (var hoverItem in this._hoverables)
             {
-                if (buttonHover != selectedHoverItem)
+                if (hoverItem != selectedHoverItem)
                 {
-                    buttonHover.SetSelection(false);
+                    hoverItem.SetSelection(false);
                 }
             }
             

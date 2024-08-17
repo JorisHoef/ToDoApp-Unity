@@ -7,15 +7,17 @@ using UnityEngine.UI;
 namespace JorisHoef.UI.HoverSystem
 {
     /// <summary>
-    /// Basic HoverItem component, will tween assigned graphics to and from the assigned colors
+    /// Will do equal behaviour as the HoverItem class, can assign a target tween destination (as HoverItem)
+    /// Can also assign objects in between which will try to percentage wise move towards the tween destination per item (as a breadcrumb or staircase)
     /// </summary>
-    public class HoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IHoverable
+    public class BreadCrumbHoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IHoverable
     {
         public event Action<IHoverable> OnSelected;
         
         [SerializeField] private Graphic[] _graphics;
         [SerializeField] private Graphic[] _invertedGraphics;
-
+        [SerializeField] private Graphic[] _inBetweeners;
+        
         [Header("Colours")]
         [SerializeField] private Color _selectedMaterial;
         [SerializeField] private Color _defaultMaterial;
@@ -102,6 +104,21 @@ namespace JorisHoef.UI.HoverSystem
             foreach (var invertedGraphic in this._invertedGraphics)
             {
                 var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
+                uiTweens.Add(colorTween);
+            }
+            
+            for (int i = 1; i <= this._inBetweeners.Length; i++)
+            {
+                //Length == 100%
+                //targetColor argument == 100%
+                //Each amount == % increment
+                int j = this._inBetweeners.Length - i;
+                Graphic inBetweener = this._inBetweeners[j];
+                float interpolationFactor = (float)(i - 1) / (this._inBetweeners.Length);
+                
+                Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
+
+                var colorTween = new ColorTween(inBetweener, newTargetColor, this._tweenDuration);
                 uiTweens.Add(colorTween);
             }
             return uiTweens;
