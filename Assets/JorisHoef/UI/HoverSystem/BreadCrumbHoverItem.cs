@@ -14,7 +14,6 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<IHoverable> OnSelected;
         
-        [SerializeField] private bool _hierarchyChain;
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
 
@@ -47,24 +46,11 @@ namespace JorisHoef.UI.HoverSystem
         
         private void SetInbetweenerChain(Component startItem, Component endItem)
         {
-            //find first child after startitem,
-            //find first parent of enditem
-            
             for (int i = 0; i < startItem.transform.parent.childCount; i++)
             {
                 Transform nextItem = startItem.transform.parent.GetChild(i);
                 HoverItem addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
                 this._chainItems.Add(addedComponent);
-                
-                // if (this._hierarchyChain)
-                // {
-                //     for (int j = 0; j < nextItem.childCount; j++)
-                //     {
-                //         nextItem = nextItem.transform.GetChild(j);
-                //         addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
-                //         this._chainItems.Add(addedComponent);
-                //     }
-                // }
                 
                 if (nextItem == endItem.transform.parent)
                 {
