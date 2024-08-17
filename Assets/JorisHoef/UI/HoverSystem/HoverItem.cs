@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,10 +10,8 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<HoverItem> OnSelected;
         
-        [Header("Assign button if this component isn't on the button itself")]
-        
-        [SerializeField] private Graphic[] _images;
-        [SerializeField] private Graphic[] _invertedImages;
+        [SerializeField] private Graphic[] _graphics;
+        [SerializeField] private Graphic[] _invertedGraphics;
 
         [Header("Colours")]
         [SerializeField] private Color _selectedMaterial;
@@ -27,6 +24,7 @@ namespace JorisHoef.UI.HoverSystem
         
         private readonly Tweener _tweener = new Tweener();
         private bool _isSelected;
+        private bool _isHovered;
         
         public void SetSelection(bool isSelected)
         {
@@ -36,11 +34,16 @@ namespace JorisHoef.UI.HoverSystem
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            this.SetHover();
+            this._isHovered = true;
+            if (!this._isSelected)
+            {
+                this.SetHover();
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            this._isHovered = false;
             if (this._isSelected)
             {
                 this.SetSelected();
@@ -53,6 +56,12 @@ namespace JorisHoef.UI.HoverSystem
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (this._isSelected)
+            {
+                SetSelection(false);
+                return;
+            }
+            
             if (OnSelected == null)
             {
                 SetSelection(true);
@@ -69,6 +78,10 @@ namespace JorisHoef.UI.HoverSystem
             {
                 this.SetSelected();
             }
+            else if (this._isHovered)
+            {
+                this.SetHover();
+            }
             else
             {
                 this.Deselect();
@@ -78,12 +91,12 @@ namespace JorisHoef.UI.HoverSystem
         private List<IUiTween> SetUITweens(Color targetColor)
         {
             var uiTweens = new List<IUiTween>();
-            foreach (var graphic in this._images)
+            foreach (var graphic in this._graphics)
             {
                 var colorTween = new ColorTween(graphic, targetColor, this._tweenDuration);
                 uiTweens.Add(colorTween);
             }
-            foreach (var invertedGraphic in this._invertedImages)
+            foreach (var invertedGraphic in this._invertedGraphics)
             {
                 var colorTween = new ColorTween(invertedGraphic, this.GetContrastingColor(targetColor), this._tweenDuration);
                 uiTweens.Add(colorTween);

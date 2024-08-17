@@ -4,11 +4,13 @@ namespace JorisHoef.UI.HoverSystem
 {
     public class ExclusiveHoverGroup : MonoBehaviour
     {
-        [SerializeField] private HoverItem[] _buttonHover;
+        [SerializeField] private HoverItem[] _hoverItems;
 
-        private void Awake()
+        private void Start()
         {
-            foreach (var buttonHover in this._buttonHover)
+            this._hoverItems = this.GetComponentsInChildren<HoverItem>();
+            
+            foreach (var buttonHover in this._hoverItems)
             { 
                 buttonHover.OnSelected += this.ResetOtherButtonHovers;
             }
@@ -16,7 +18,7 @@ namespace JorisHoef.UI.HoverSystem
 
         private void ResetOtherButtonHovers(HoverItem selectedHoverItem)
         {
-            foreach (var buttonHover in this._buttonHover)
+            foreach (var buttonHover in this._hoverItems)
             {
                 if (buttonHover != selectedHoverItem)
                 {

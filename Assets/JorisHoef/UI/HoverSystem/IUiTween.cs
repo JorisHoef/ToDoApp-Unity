@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 namespace JorisHoef.UI.HoverSystem
 {
+    public static class TweenFunctions
+    {
+        
+    }
+    
     public class Tweener
     {
         public void TweenAll(List<IUiTween> uiTweens, AnimationCurve easeType)
