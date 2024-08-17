@@ -2028,7 +2028,6 @@ GameObject:
   - component: {fileID: 1179808003}
   - component: {fileID: 1179808002}
   - component: {fileID: 1179808001}
-  - component: {fileID: 1179808000}
   m_Layer: 5
   m_Name: Bottom_Image (1)
   m_TagString: Untagged
@@ -2058,19 +2057,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1179808000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1179807998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823056ae09f04cb583d4d9fc4c57e612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isInverted: 0
 --- !u!114 &1179808001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2416,7 +2402,6 @@ GameObject:
   - component: {fileID: 1331146645}
   - component: {fileID: 1331146644}
   - component: {fileID: 1331146643}
-  - component: {fileID: 1331146642}
   m_Layer: 5
   m_Name: Bottom_Image (3)
   m_TagString: Untagged
@@ -2446,19 +2431,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1331146642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1331146640}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823056ae09f04cb583d4d9fc4c57e612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isInverted: 0
 --- !u!114 &1331146643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2871,7 +2843,6 @@ GameObject:
   - component: {fileID: 1411203989}
   - component: {fileID: 1411203988}
   - component: {fileID: 1411203987}
-  - component: {fileID: 1411203986}
   m_Layer: 5
   m_Name: Bottom_Image (4)
   m_TagString: Untagged
@@ -2901,19 +2872,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1411203986
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1411203984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823056ae09f04cb583d4d9fc4c57e612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isInverted: 0
 --- !u!114 &1411203987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3217,7 +3175,6 @@ GameObject:
   - component: {fileID: 1511996336}
   - component: {fileID: 1511996335}
   - component: {fileID: 1511996334}
-  - component: {fileID: 1511996333}
   m_Layer: 5
   m_Name: Bottom_Image (5)
   m_TagString: Untagged
@@ -3246,19 +3203,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1511996333
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511996331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823056ae09f04cb583d4d9fc4c57e612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isInverted: 0
 --- !u!114 &1511996334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3802,7 +3746,6 @@ GameObject:
   - component: {fileID: 1761588343}
   - component: {fileID: 1761588342}
   - component: {fileID: 1761588341}
-  - component: {fileID: 1761588340}
   m_Layer: 5
   m_Name: Bottom_Image (2)
   m_TagString: Untagged
@@ -3832,19 +3775,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1761588340
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1761588338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 823056ae09f04cb583d4d9fc4c57e612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _isInverted: 0
 --- !u!114 &1761588341
 MonoBehaviour:
   m_ObjectHideFlags: 0

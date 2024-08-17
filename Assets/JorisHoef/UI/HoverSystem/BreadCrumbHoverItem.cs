@@ -14,6 +14,8 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<IHoverable> OnSelected;
         
+        [SerializeField] private bool _useHierarchicalDepth;
+        [SerializeField] private bool _invertTextColor;
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
 
@@ -31,10 +33,11 @@ namespace JorisHoef.UI.HoverSystem
         
         private readonly Tweener _tweener = new Tweener();
         
-        private List<HoverItem> _chainItems = new List<HoverItem>(); //Gets filled with everything between startChainItem and endChainItem
+        private readonly List<HoverItem> _chainItems = new List<HoverItem>(); //Gets filled with everything between startChainItem and endChainItem
         private bool _isSelected;
         private bool _isHovered;
 
+#region Initializing
         private void Awake()
         {
             if (this._startChainItem == null || this._endChainItem == null)
@@ -50,7 +53,13 @@ namespace JorisHoef.UI.HoverSystem
             {
                 Transform nextItem = startItem.transform.parent.GetChild(i);
                 HoverItem addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
+                addedComponent.IsInverted = this._invertTextColor;
                 this._chainItems.Add(addedComponent);
+                
+                if (this._useHierarchicalDepth)
+                {
+                    TraverseSiblingsAndChildren(nextItem, endItem);
+                }
                 
                 if (nextItem == endItem.transform.parent)
                 {
@@ -58,6 +67,30 @@ namespace JorisHoef.UI.HoverSystem
                 }
             }
         }
+
+        private void TraverseSiblingsAndChildren(Transform currentItem, Component endItem)
+        {
+            for (int j = 0; j < currentItem.childCount; j++)
+            {
+                Transform childItem = currentItem.GetChild(j);
+                
+                HoverItem addedComponent = childItem.gameObject.AddComponent<HoverItem>();
+                addedComponent.IsInverted = this._invertTextColor;
+                
+                this._chainItems.Add(addedComponent);
+                
+                TraverseSiblingsAndChildren(childItem, endItem);
+                
+                if (childItem == endItem)
+                {
+                    break;
+                }
+            }
+        }
+#endregion
+
+#region HoveringAndSelection
+        
 
         public void SetSelection(bool isSelected)
         {
@@ -179,5 +212,6 @@ namespace JorisHoef.UI.HoverSystem
                 this._tweener.TweenAll(uiTweens, this._ease);   
             }
         }
+#endregion
     }
 }

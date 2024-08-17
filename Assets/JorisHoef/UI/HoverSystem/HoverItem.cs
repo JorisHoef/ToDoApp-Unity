@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,13 +18,29 @@ namespace JorisHoef.UI.HoverSystem
         private Graphic[] _childGraphics;
         private Color _targetColor;
         private float _tweenDuration;
-        
+
+        public bool IsInverted
+        {
+            get => _isInverted;
+            set
+            {
+                if (this.GetComponent<TMP_Text>())
+                {
+                    _isInverted = value;
+                }
+            }
+        }
+
         private void Awake()
         {
             this._graphic = this.GetComponent<Graphic>();
+        }
+
+        private void Start()
+        {
             this._childGraphics = this.GetComponentsInChildren<Graphic>().Where(c => c.gameObject != this.gameObject).ToArray(); //Exclude self
         }
-        
+
         public void SetColor(Color color, float tweenDuration)
         {
             this._targetColor = color;
@@ -48,9 +65,21 @@ namespace JorisHoef.UI.HoverSystem
                     colorTween
             };
             
-            foreach (var invertedGraphic in this._childGraphics)
+            foreach (Graphic childGraphic in this._childGraphics)
             {
-                colorTween = new ColorTween(invertedGraphic, GetContrastingColor(newTarget), this._tweenDuration);
+                if (childGraphic.GetComponent<HoverItem>() != null)//Do not change children who decide their own colors
+                {
+                    continue;
+                }
+                
+                if (childGraphic is Image)//Do not invert images
+                {
+                    colorTween = new ColorTween(childGraphic, newTarget, this._tweenDuration);
+                }
+                else
+                {
+                    colorTween = new ColorTween(childGraphic, GetContrastingColor(newTarget), this._tweenDuration);
+                }
                 uiTweens.Add(colorTween);
             }
             return uiTweens;
