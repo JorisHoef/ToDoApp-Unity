@@ -13,7 +13,8 @@ namespace JorisHoef.UI.HoverSystem
     public class BreadCrumbHoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IHoverable
     {
         public event Action<IHoverable> OnSelected;
-        
+
+        [SerializeField] private bool _invertBreadcrumb;
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
 
@@ -63,26 +64,24 @@ namespace JorisHoef.UI.HoverSystem
 
         private void TraverseSiblingsAndChildren(Transform currentItem, Component endItem)
         {
-            for (int j = 0; j < currentItem.childCount; j++)
-            {
-                Transform childItem = currentItem.GetChild(j);
-                HoverItem addedComponent = childItem.gameObject.AddComponent<HoverItem>();
-                
-                this._chainItems.Add(addedComponent);
-                
-                TraverseSiblingsAndChildren(childItem, endItem);
-                
-                if (childItem == endItem)
-                {
-                    break;
-                }
-            }
+             for (int j = 0; j < currentItem.childCount; j++) 
+             { 
+                 Transform childItem = currentItem.GetChild(j); 
+                 HoverItem addedComponent = childItem.gameObject.AddComponent<HoverItem>();
+                 
+                 this._chainItems.Add(addedComponent);
+                 
+                 TraverseSiblingsAndChildren(childItem, endItem);
+                 
+                 if (childItem == endItem) 
+                 { 
+                     break; 
+                 } 
+             }
         }
 #endregion
 
 #region HoveringAndSelection
-        
-
         public void SetSelection(bool isSelected)
         {
             this._isSelected = isSelected;
@@ -159,21 +158,32 @@ namespace JorisHoef.UI.HoverSystem
                 invertedHoverItem.SetColor(targetColor, this._tweenDuration);
                 uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
-            
+
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
-                //Length == 100%
-                //targetColor argument == 100%
-                //Each amount == % increment
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
-                float interpolationFactor = (float)(i) / (this._chainItems.Count);
-                
-                Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
+    
+                float interpolationFactor;
 
-                chainItem.SetColor(newTargetColor, this._tweenDuration);
+                if (this._invertBreadcrumb)
+                {
+                    //Reverse order: start at visual 100% and end at visual 10%
+                    interpolationFactor = (float)(i - 1) / (this._chainItems.Count + 1);
+                    Color newTargetColor = Color.Lerp(targetColor, this._defaultMaterial, interpolationFactor);
+                    chainItem.SetColor(newTargetColor, this._tweenDuration);
+                }
+                else
+                {
+                    //Normal order: start at 10% and end at 100%
+                    interpolationFactor = (float)(i) / this._chainItems.Count;
+                    Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
+                    chainItem.SetColor(newTargetColor, this._tweenDuration);
+                }
+
                 uiTweens.Add(chainItem.SetAndGetTweens());
             }
+
             return uiTweens;
         }
         
