@@ -14,8 +14,6 @@ namespace JorisHoef.UI.HoverSystem
     {
         public event Action<IHoverable> OnSelected;
         
-        [SerializeField] private bool _useHierarchicalDepth;
-        [SerializeField] private bool _invertTextColor;
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
 
@@ -32,7 +30,6 @@ namespace JorisHoef.UI.HoverSystem
         [SerializeField] private AnimationCurve _ease;
         
         private readonly Tweener _tweener = new Tweener();
-        
         private readonly List<HoverItem> _chainItems = new List<HoverItem>(); //Gets filled with everything between startChainItem and endChainItem
         private bool _isSelected;
         private bool _isHovered;
@@ -53,13 +50,9 @@ namespace JorisHoef.UI.HoverSystem
             {
                 Transform nextItem = startItem.transform.parent.GetChild(i);
                 HoverItem addedComponent = nextItem.gameObject.AddComponent<HoverItem>();
-                addedComponent.IsInverted = this._invertTextColor;
                 this._chainItems.Add(addedComponent);
                 
-                if (this._useHierarchicalDepth)
-                {
-                    TraverseSiblingsAndChildren(nextItem, endItem);
-                }
+                TraverseSiblingsAndChildren(nextItem, endItem);
                 
                 if (nextItem == endItem.transform.parent)
                 {
@@ -73,9 +66,7 @@ namespace JorisHoef.UI.HoverSystem
             for (int j = 0; j < currentItem.childCount; j++)
             {
                 Transform childItem = currentItem.GetChild(j);
-                
                 HoverItem addedComponent = childItem.gameObject.AddComponent<HoverItem>();
-                addedComponent.IsInverted = this._invertTextColor;
                 
                 this._chainItems.Add(addedComponent);
                 

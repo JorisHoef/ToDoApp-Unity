@@ -12,24 +12,12 @@ namespace JorisHoef.UI.HoverSystem
     [RequireComponent(typeof(Graphic))]
     public class HoverItem : MonoBehaviour
     {
-        [SerializeField] private bool _isInverted;
-        
         private Graphic _graphic;
         private Graphic[] _childGraphics;
         private Color _targetColor;
         private float _tweenDuration;
 
-        public bool IsInverted
-        {
-            get => _isInverted;
-            set
-            {
-                if (this.GetComponent<TMP_Text>())
-                {
-                    _isInverted = value;
-                }
-            }
-        }
+        public bool IsInverted => this.GetComponent<TMP_Text>();
 
         private void Awake()
         {
@@ -50,7 +38,7 @@ namespace JorisHoef.UI.HoverSystem
         public List<IUiTween> SetAndGetTweens()
         {
             Color newTarget;
-            if (this._isInverted)
+            if (this.IsInverted)
             {
                 newTarget = GetContrastingColor(this._targetColor);
             }
