@@ -6,7 +6,7 @@ namespace JorisHoef.API.Services
 {
     public static class TaskExtensions
     {
-        public static IEnumerator AsIEnumerator<T>(this Task<T> task, System.Action<T> onCompleted = null)
+        public static IEnumerator AsIEnumeratorWithCallback<T>(this Task<T> task, System.Action<T> onCompleted)
         {
             while (!task.IsCompleted)
             {

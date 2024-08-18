@@ -43,15 +43,15 @@ namespace JorisHoef.API
             {
                 try
                 {
-                    webRequest.SendWebRequest();
+                    await SendRequestAsync(webRequest);
 
                     if (webRequest.result == UnityWebRequest.Result.ConnectionError)
                     {
                         return new ApiCallResult<TResponse>
                         {
                             IsSuccess = false,
-                            ErrorMessage = $"Connection error: {webRequest.error}",
-                            HttpMethod = _method
+                            ErrorMessage = $"Connection error: {webRequest.error} ResponseCode : {webRequest.responseCode}",
+                            HttpMethod = _method,
                         };
                     }
                     else if (webRequest.result == UnityWebRequest.Result.ProtocolError)
@@ -72,7 +72,7 @@ namespace JorisHoef.API
                 }
                 catch (Exception ex)
                 {
-                    string errorMessage = await TryExtractErrorMessage(webRequest);
+                    string errorMessage = await ExtractErrorMessage(webRequest);
                     return new ApiCallResult<TResponse>
                     {
                         IsSuccess = false,
@@ -83,7 +83,7 @@ namespace JorisHoef.API
                 }
             }
         }
-
+        
         protected virtual UnityWebRequest PrepareRequest(string tokenToSend)
         {
             try
@@ -185,22 +185,29 @@ namespace JorisHoef.API
                 return Task.FromResult($"Error parsing error message: {ex.Message}");
             }
         }
-
-        private Task<string> TryExtractErrorMessage(UnityWebRequest webRequest)
+        
+        /// <summary>
+        /// TaskWrapper for Unity WebRequest
+        /// </summary>
+        /// <param name="webRequest"></param>
+        /// <returns></returns>
+        private Task SendRequestAsync(UnityWebRequest webRequest)
         {
-            try
+            var completionSource = new TaskCompletionSource<object>();
+
+            webRequest.SendWebRequest().completed += operation =>
             {
-                if (webRequest != null && webRequest.downloadHandler != null && !string.IsNullOrEmpty(webRequest.downloadHandler.text))
+                if (webRequest.result == UnityWebRequest.Result.ConnectionError || webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    var errorResponse = JsonConvert.DeserializeObject<JObject>(webRequest.downloadHandler.text);
-                    return Task.FromResult(errorResponse["error"]?.ToString());
+                    completionSource.TrySetException(new Exception(webRequest.error));
                 }
-            }
-            catch
-            {
-                // Ignore errors in error handling
-            }
-            return Task.FromResult<string>(null);
+                else
+                {
+                    completionSource.TrySetResult(null);
+                }
+            };
+
+            return completionSource.Task;
         }
     }
 }

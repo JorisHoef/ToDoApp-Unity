@@ -59,7 +59,7 @@ namespace JorisHoef.API.Services.Base
             }
             else
             {
-                Debug.LogError($" Error making API call to {endpoint} and {result.HttpMethod}: {result.ErrorMessage}");
+                Debug.LogError($" Error making API call to {endpoint} and {result.HttpMethod} - Message: {result.ErrorMessage} - Exception: {result.Exception}");
             }
         }
     }
