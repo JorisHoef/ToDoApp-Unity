@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1158,6 +1157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a062cd7dd4b88999d271ce647eecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _staircaseMode: 1
   _invertBreadcrumb: 1
   _graphics: []
   _invertedGraphics: []
@@ -2685,6 +2685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a062cd7dd4b88999d271ce647eecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _staircaseMode: 1
   _invertBreadcrumb: 0
   _graphics: []
   _invertedGraphics: []
@@ -6224,7 +6225,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a062cd7dd4b88999d271ce647eecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _invertBreadcrumb: 1
+  _staircaseMode: 1
+  _invertBreadcrumb: 0
   _graphics: []
   _invertedGraphics: []
   _startChainItem: {fileID: 77910714}
@@ -6430,6 +6432,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a062cd7dd4b88999d271ce647eecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _staircaseMode: 0
   _invertBreadcrumb: 1
   _graphics: []
   _invertedGraphics: []
@@ -9383,6 +9386,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -11128,6 +11132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 903a062cd7dd4b88999d271ce647eecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _staircaseMode: 0
   _invertBreadcrumb: 0
   _graphics:
   - {fileID: 6006322120523776882}
