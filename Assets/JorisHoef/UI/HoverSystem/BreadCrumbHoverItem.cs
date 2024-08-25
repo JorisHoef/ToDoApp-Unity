@@ -12,14 +12,14 @@ namespace JorisHoef.UI.HoverSystem
     public class BreadCrumbHoverItem : MonoBehaviour, IHoverable
     {
         public event Action<IHoverable> OnSelected;
-
+        
         [SerializeField] private bool _staircaseMode;
         [SerializeField] private bool _invertBreadcrumb;
         
         [Header("Non-Chaining Graphics")]
         [SerializeField] private HoverItem[] _graphics;
         [SerializeField] private HoverItem[] _invertedGraphics;
-
+        
         [Header("Chaining Graphics")]
         [SerializeField] private Graphic _startChainItem;
         [SerializeField] private Graphic _endChainItem;
@@ -28,7 +28,7 @@ namespace JorisHoef.UI.HoverSystem
         [SerializeField] private Color _selectedMaterial;
         [SerializeField] private Color _defaultMaterial;
         [SerializeField] private Color _hoverMaterial;
-
+        
         [Header("Tween Settings")]
         [SerializeField] private float _tweenDuration = 0.5f;
         [SerializeField] private AnimationCurve _ease;
@@ -36,8 +36,7 @@ namespace JorisHoef.UI.HoverSystem
         private readonly Tweener _tweener = new Tweener();
         private readonly List<HoverItem> _chainItems = new List<HoverItem>(); //Gets filled with everything between startChainItem and endChainItem
         private bool _isSelected;
-        private bool _isHovered;
-
+        
 #region Initializing
         private void Awake()
         {
@@ -57,7 +56,7 @@ namespace JorisHoef.UI.HoverSystem
                 this._chainItems.Add(addedComponent);
                 
                 TraverseSiblingsAndChildren(nextItem, endItem);
-                                
+                
                 addedComponent.OnHoverEnter += OnHoverEnterCalled;
                 addedComponent.OnHoverExit += OnHoverExitCalled;
                 addedComponent.OnSelected += OnSelectedCalled;
@@ -67,7 +66,7 @@ namespace JorisHoef.UI.HoverSystem
                 }
             }
         }
-
+        
         private void TraverseSiblingsAndChildren(Transform currentItem, Component endItem)
         {
              for (int j = 0; j < currentItem.childCount; j++) 
@@ -123,23 +122,32 @@ namespace JorisHoef.UI.HoverSystem
         private List<List<IUiTween>> SetColorForChainItems(Color targetColor, HoverItem hoveredItem)
         {
             var uiTweens = new List<List<IUiTween>>();
+            bool hoveredItemProcessed = false;
             
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
-        
+                
                 float interpolationFactor = CalculateInterpolationFactor(i);
                 Color newTargetColor = this._invertBreadcrumb 
                                                ? Color.Lerp(targetColor, this._defaultMaterial, interpolationFactor) 
                                                : Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
-                
+
                 chainItem.SetColor(newTargetColor, this._tweenDuration);
                 uiTweens.Add(chainItem.SetAndGetTweens());
                 
+                
                 if (_staircaseMode && chainItem.IsHovered && chainItem == hoveredItem)
                 {
-                    Debug.Log("Item already hovered");
+                    Debug.Log("Item already hovered, but setting color before breaking.");
+                    hoveredItemProcessed = true;
+                    continue; //Continue to process the last color change before breaking
+                }
+                
+                //If the hovered item was processed, break after setting its color
+                if (hoveredItemProcessed)
+                {
                     break;
                 }
             }
@@ -178,7 +186,7 @@ namespace JorisHoef.UI.HoverSystem
         {
            // this._isSelected = isSelected;
         }
-         
+        
         private void SetSelected(HoverItem hoverItem)
         {
             if (this._isSelected)
@@ -198,7 +206,7 @@ namespace JorisHoef.UI.HoverSystem
                 SetHover(hoverItem);
             }
         }
-
+        
         private void Deselect(HoverItem hoverItem)
         {
             List<List<IUiTween>> deselected = SetUITweens(this._defaultMaterial, hoverItem);
@@ -207,7 +215,7 @@ namespace JorisHoef.UI.HoverSystem
                 this._tweener.TweenAll(uiTweens, this._ease);   
             }
         }
-
+        
         private void SetHover(HoverItem hoverItem)
         {
             List<List<IUiTween>> hovered = SetUITweens(this._hoverMaterial, hoverItem);
