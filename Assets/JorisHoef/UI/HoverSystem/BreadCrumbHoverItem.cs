@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JorisHoef.UI.HoverSystem
@@ -11,11 +9,7 @@ namespace JorisHoef.UI.HoverSystem
     /// Will do equal behaviour as the HoverItem class, can assign a target tween destination (as HoverItem)
     /// Can also assign objects in between which will try to percentage wise move towards the tween destination per item (as a breadcrumb or staircase)
     /// </summary>
-    public class BreadCrumbHoverItem : MonoBehaviour
-    , IPointerEnterHandler
-    , IPointerExitHandler
-    //, IPointerClickHandler
-    , IHoverable
+    public class BreadCrumbHoverItem : MonoBehaviour, IHoverable
     {
         public event Action<IHoverable> OnSelected;
 
@@ -66,6 +60,7 @@ namespace JorisHoef.UI.HoverSystem
                                 
                 addedComponent.OnHoverEnter += OnHoverEnterCalled;
                 addedComponent.OnHoverExit += OnHoverExitCalled;
+                addedComponent.OnSelected += OnSelectedCalled;
                 if (nextItem == endItem.transform.parent)
                 {
                     break;
@@ -79,12 +74,12 @@ namespace JorisHoef.UI.HoverSystem
              { 
                  Transform childItem = currentItem.GetChild(j); 
                  HoverItem addedComponent = childItem.gameObject.AddComponent<HoverItem>();
-                 
                  this._chainItems.Add(addedComponent);
                  
                  TraverseSiblingsAndChildren(childItem, endItem);
                  addedComponent.OnHoverEnter += OnHoverEnterCalled;
                  addedComponent.OnHoverExit += OnHoverExitCalled;
+                 addedComponent.OnSelected += OnSelectedCalled;
                  if (childItem == endItem) 
                  { 
                      break; 
@@ -92,7 +87,7 @@ namespace JorisHoef.UI.HoverSystem
              }
         }
 #endregion
-
+        
         private List<List<IUiTween>> SetUITweens(Color targetColor, HoverItem hoveredItem)
         {
             var uiTweens = new List<List<IUiTween>>();
@@ -108,22 +103,21 @@ namespace JorisHoef.UI.HoverSystem
                 uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
             
-            var foundItem = this._chainItems.FirstOrDefault(x => x == hoveredItem);
-            
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
+
                 if(_staircaseMode)
                 {
-                    if(chainItem == foundItem)
+                    if (chainItem.IsHovered && chainItem == hoveredItem)
                     {
-                        Debug.Log("Found the hoveredItem");
+                        Debug.Log("Item already hovered");
                         break;
                     }
                     else
                     {
-
+                        
                     }
                 }
                 
@@ -149,91 +143,49 @@ namespace JorisHoef.UI.HoverSystem
             return uiTweens;
         }
         
-        //TODO: We only want to add an item to a list of managed Hoverables. Let them do their highlighting 
-        //instead of this object. That way we won't have to go through all the objects but can just change that 1 object.
-        //This means that when we disable staircase mode it just adds all chainItems to that list
-        //Otherwise it only adds where we hovered on for as long as we hover on THIS specific item
-        
 #region HoveringAndSelection
+        private void OnSelectedCalled(HoverItem selectedHoveritem)
+        { 
+            //OnSelected?.Invoke(this);
+            _isSelected = !_isSelected;
+            SetSelected(selectedHoveritem);
+        }
+        
         private void OnHoverEnterCalled(HoverItem onHoverItem)
         {
+            if (this._isSelected) return;
             SetHover(onHoverItem);
         }
         
-         private void OnHoverExitCalled(HoverItem onHoverItem)
-         {
+        private void OnHoverExitCalled(HoverItem onHoverItem)
+        { 
+            if (this._isSelected) return;
             Deselect(onHoverItem);
-         }
+        }
         
         public void SetSelection(bool isSelected)
         {
-            this._isSelected = isSelected;
-            this.UpdateState();
+           // this._isSelected = isSelected;
         }
-
-public void OnPointerEnter(PointerEventData eventData)
-{
-    this._isHovered = true;
-    //if (!this._isSelected)
-    //{
-    //    this.SetHover();
-    //}
-}
-
- public void OnPointerExit(PointerEventData eventData)
- {
-     this._isHovered = false;
-     //if (this._isSelected)
-     //{
-     //    this.SetSelected();
-     //}
-     //else
-    // {
-    //     this.Deselect();
-    // }
- }
-
- //public void OnPointerClick(PointerEventData eventData)
- //{
- //    if (this._isSelected)
- //    {
- //        SetSelection(false);
- //        return;
- //    }
- //    
- //    if (OnSelected == null)
- //    {
- //        SetSelection(true);
- //    }
- //    else
- //    {
- //        this.OnSelected.Invoke(this);
- //    }
- //}
-
-        private void UpdateState()
+         
+        private void SetSelected(HoverItem hoverItem)
         {
             if (this._isSelected)
             {
-                this.SetSelected();
+                List<List<IUiTween>> selected = SetUITweens(this._selectedMaterial, hoverItem);
+                foreach (var uiTweens in selected)
+                {
+                    this._tweener.TweenAll(uiTweens, this._ease);   
+                }
             }
-            else if (this._isHovered)
+            else if (!this._isSelected && !hoverItem.IsHovered)
             {
-                //this.SetHover();
+                Deselect(hoverItem);
             }
             else
             {
-               // this.Deselect();
+                SetHover(hoverItem);
             }
-        }
-        
-        private void SetSelected()
-        {
-           // List<List<IUiTween>> selected = SetUITweens(this._selectedMaterial);
-           //foreach (var uiTweens in selected)
-           //{
-           //    this._tweener.TweenAll(uiTweens, this._ease);   
-           //}
         }
 
         private void Deselect(HoverItem hoverItem)

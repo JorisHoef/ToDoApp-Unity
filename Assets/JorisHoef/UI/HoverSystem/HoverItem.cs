@@ -12,8 +12,9 @@ namespace JorisHoef.UI.HoverSystem
     /// Basic HoverItem component, will tween assigned graphics to and from the assigned colors
     /// </summary>
     [RequireComponent(typeof(Graphic))]
-    public class HoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class HoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
+        public event Action<HoverItem> OnSelected;
         public event Action<HoverItem> OnHoverEnter;
         public event Action<HoverItem> OnHoverExit;
         
@@ -22,6 +23,8 @@ namespace JorisHoef.UI.HoverSystem
         private Color _targetColor;
         private float _tweenDuration;
 
+        public bool IsHovered { get; private set; }
+        
         private bool IsInverted => this.GetComponent<TMP_Text>();
 
         private void Awake()
@@ -34,13 +37,20 @@ namespace JorisHoef.UI.HoverSystem
             this._childGraphics = this.GetComponentsInChildren<Graphic>().Where(c => c.gameObject != this.gameObject).ToArray(); //Exclude self
         }
         
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            OnSelected?.Invoke(this);
+        }
+        
         public void OnPointerEnter(PointerEventData eventData)
         {
+            IsHovered = true;
             OnHoverEnter?.Invoke(this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            IsHovered = false;
             OnHoverExit?.Invoke(this);
         }
         
