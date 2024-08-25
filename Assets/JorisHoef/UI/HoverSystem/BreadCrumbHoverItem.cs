@@ -91,6 +91,20 @@ namespace JorisHoef.UI.HoverSystem
         private List<List<IUiTween>> SetUITweens(Color targetColor, HoverItem hoveredItem)
         {
             var uiTweens = new List<List<IUiTween>>();
+            
+            //Handle main and inverted graphics
+            uiTweens.AddRange(SetColorForGraphics(targetColor));
+            
+            //Handle chain items
+            uiTweens.AddRange(SetColorForChainItems(targetColor, hoveredItem));
+            
+            return uiTweens;
+        }
+        
+        private List<List<IUiTween>> SetColorForGraphics(Color targetColor)
+        {
+            var uiTweens = new List<List<IUiTween>>();
+            
             foreach (var hoverItem in this._graphics)
             {
                 hoverItem.SetColor(targetColor, this._tweenDuration);
@@ -103,44 +117,41 @@ namespace JorisHoef.UI.HoverSystem
                 uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
             
+            return uiTweens;
+        }
+        
+        private List<List<IUiTween>> SetColorForChainItems(Color targetColor, HoverItem hoveredItem)
+        {
+            var uiTweens = new List<List<IUiTween>>();
+            
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
+        
+                float interpolationFactor = CalculateInterpolationFactor(i);
+                Color newTargetColor = this._invertBreadcrumb 
+                                               ? Color.Lerp(targetColor, this._defaultMaterial, interpolationFactor) 
+                                               : Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
                 
-                float interpolationFactor;
-
-                if (this._invertBreadcrumb)
-                {
-                    //Reverse order: start at visual 100% and end at visual 10%
-                    interpolationFactor = (float)(i - 1) / (this._chainItems.Count + 1);
-                    Color newTargetColor = Color.Lerp(targetColor, this._defaultMaterial, interpolationFactor);
-                    chainItem.SetColor(newTargetColor, this._tweenDuration);
-                }
-                else
-                {
-                    //Normal order: start at 10% and end at 100%
-                    interpolationFactor = (float)(i) / this._chainItems.Count;
-                    Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
-                    chainItem.SetColor(newTargetColor, this._tweenDuration);
-                }
-                
+                chainItem.SetColor(newTargetColor, this._tweenDuration);
                 uiTweens.Add(chainItem.SetAndGetTweens());
                 
-                if(_staircaseMode)
+                if (_staircaseMode && chainItem.IsHovered && chainItem == hoveredItem)
                 {
-                    if (chainItem.IsHovered && chainItem == hoveredItem)
-                    {
-                        Debug.Log("Item already hovered");
-                        break;
-                    }
-                    else
-                    {
-                        
-                    }
+                    Debug.Log("Item already hovered");
+                    break;
                 }
             }
+            
             return uiTweens;
+        }
+        
+        private float CalculateInterpolationFactor(int index)
+        {
+            return this._invertBreadcrumb 
+                           ? (float)(index - 1) / (this._chainItems.Count + 1) 
+                           : (float)index / this._chainItems.Count;
         }
         
 #region HoveringAndSelection
