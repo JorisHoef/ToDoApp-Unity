@@ -1,4 +1,4 @@
-namespace ToDoAppUnity.Models
+namespace ToDoAppUnity.Tasks
 {
     public enum TaskItemState
     {
