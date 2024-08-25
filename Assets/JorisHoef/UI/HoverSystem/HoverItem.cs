@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace JorisHoef.UI.HoverSystem
@@ -10,8 +12,11 @@ namespace JorisHoef.UI.HoverSystem
     /// Basic HoverItem component, will tween assigned graphics to and from the assigned colors
     /// </summary>
     [RequireComponent(typeof(Graphic))]
-    public class HoverItem : MonoBehaviour
+    public class HoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        public event Action<HoverItem> OnHoverEnter;
+        public event Action<HoverItem> OnHoverExit;
+        
         private Graphic _graphic;
         private Graphic[] _childGraphics;
         private Color _targetColor;
@@ -28,7 +33,17 @@ namespace JorisHoef.UI.HoverSystem
         {
             this._childGraphics = this.GetComponentsInChildren<Graphic>().Where(c => c.gameObject != this.gameObject).ToArray(); //Exclude self
         }
+        
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            OnHoverEnter?.Invoke(this);
+        }
 
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            OnHoverExit?.Invoke(this);
+        }
+        
         public void SetColor(Color color, float tweenDuration)
         {
             this._targetColor = color;

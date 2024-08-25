@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,10 +11,15 @@ namespace JorisHoef.UI.HoverSystem
     /// Will do equal behaviour as the HoverItem class, can assign a target tween destination (as HoverItem)
     /// Can also assign objects in between which will try to percentage wise move towards the tween destination per item (as a breadcrumb or staircase)
     /// </summary>
-    public class BreadCrumbHoverItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IHoverable
+    public class BreadCrumbHoverItem : MonoBehaviour
+    , IPointerEnterHandler
+    , IPointerExitHandler
+    //, IPointerClickHandler
+    , IHoverable
     {
         public event Action<IHoverable> OnSelected;
 
+        [SerializeField] private bool _staircaseMode;
         [SerializeField] private bool _invertBreadcrumb;
         
         [Header("Non-Chaining Graphics")]
@@ -57,7 +63,9 @@ namespace JorisHoef.UI.HoverSystem
                 this._chainItems.Add(addedComponent);
                 
                 TraverseSiblingsAndChildren(nextItem, endItem);
-                
+                                
+                addedComponent.OnHoverEnter += OnHoverEnterCalled;
+                addedComponent.OnHoverExit += OnHoverExitCalled;
                 if (nextItem == endItem.transform.parent)
                 {
                     break;
@@ -75,7 +83,8 @@ namespace JorisHoef.UI.HoverSystem
                  this._chainItems.Add(addedComponent);
                  
                  TraverseSiblingsAndChildren(childItem, endItem);
-                 
+                 addedComponent.OnHoverEnter += OnHoverEnterCalled;
+                 addedComponent.OnHoverExit += OnHoverExitCalled;
                  if (childItem == endItem) 
                  { 
                      break; 
@@ -84,7 +93,7 @@ namespace JorisHoef.UI.HoverSystem
         }
 #endregion
 
-        private List<List<IUiTween>> SetUITweens(Color targetColor)
+        private List<List<IUiTween>> SetUITweens(Color targetColor, HoverItem hoveredItem)
         {
             var uiTweens = new List<List<IUiTween>>();
             foreach (var hoverItem in this._graphics)
@@ -98,12 +107,26 @@ namespace JorisHoef.UI.HoverSystem
                 invertedHoverItem.SetColor(targetColor, this._tweenDuration);
                 uiTweens.Add(invertedHoverItem.SetAndGetTweens());
             }
-
+            
+            var foundItem = this._chainItems.FirstOrDefault(x => x == hoveredItem);
+            
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
-    
+                if(_staircaseMode)
+                {
+                    if(chainItem == foundItem)
+                    {
+                        Debug.Log("Found the hoveredItem");
+                        break;
+                    }
+                    else
+                    {
+
+                    }
+                }
+                
                 float interpolationFactor;
 
                 if (this._invertBreadcrumb)
@@ -123,56 +146,70 @@ namespace JorisHoef.UI.HoverSystem
 
                 uiTweens.Add(chainItem.SetAndGetTweens());
             }
-
             return uiTweens;
         }
         
+        //TODO: We only want to add an item to a list of managed Hoverables. Let them do their highlighting 
+        //instead of this object. That way we won't have to go through all the objects but can just change that 1 object.
+        //This means that when we disable staircase mode it just adds all chainItems to that list
+        //Otherwise it only adds where we hovered on for as long as we hover on THIS specific item
+        
 #region HoveringAndSelection
+        private void OnHoverEnterCalled(HoverItem onHoverItem)
+        {
+            SetHover(onHoverItem);
+        }
+        
+         private void OnHoverExitCalled(HoverItem onHoverItem)
+         {
+            Deselect(onHoverItem);
+         }
+        
         public void SetSelection(bool isSelected)
         {
             this._isSelected = isSelected;
             this.UpdateState();
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            this._isHovered = true;
-            if (!this._isSelected)
-            {
-                this.SetHover();
-            }
-        }
+public void OnPointerEnter(PointerEventData eventData)
+{
+    this._isHovered = true;
+    //if (!this._isSelected)
+    //{
+    //    this.SetHover();
+    //}
+}
 
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            this._isHovered = false;
-            if (this._isSelected)
-            {
-                this.SetSelected();
-            }
-            else
-            {
-                this.Deselect();
-            }
-        }
+ public void OnPointerExit(PointerEventData eventData)
+ {
+     this._isHovered = false;
+     //if (this._isSelected)
+     //{
+     //    this.SetSelected();
+     //}
+     //else
+    // {
+    //     this.Deselect();
+    // }
+ }
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (this._isSelected)
-            {
-                SetSelection(false);
-                return;
-            }
-            
-            if (OnSelected == null)
-            {
-                SetSelection(true);
-            }
-            else
-            {
-                this.OnSelected.Invoke(this);
-            }
-        }
+ //public void OnPointerClick(PointerEventData eventData)
+ //{
+ //    if (this._isSelected)
+ //    {
+ //        SetSelection(false);
+ //        return;
+ //    }
+ //    
+ //    if (OnSelected == null)
+ //    {
+ //        SetSelection(true);
+ //    }
+ //    else
+ //    {
+ //        this.OnSelected.Invoke(this);
+ //    }
+ //}
 
         private void UpdateState()
         {
@@ -182,35 +219,35 @@ namespace JorisHoef.UI.HoverSystem
             }
             else if (this._isHovered)
             {
-                this.SetHover();
+                //this.SetHover();
             }
             else
             {
-                this.Deselect();
+               // this.Deselect();
             }
         }
         
         private void SetSelected()
         {
-            List<List<IUiTween>> selected = SetUITweens(this._selectedMaterial);
-            foreach (var uiTweens in selected)
-            {
-                this._tweener.TweenAll(uiTweens, this._ease);   
-            }
+           // List<List<IUiTween>> selected = SetUITweens(this._selectedMaterial);
+           //foreach (var uiTweens in selected)
+           //{
+           //    this._tweener.TweenAll(uiTweens, this._ease);   
+           //}
         }
 
-        private void Deselect()
+        private void Deselect(HoverItem hoverItem)
         {
-            List<List<IUiTween>> deselected = SetUITweens(this._defaultMaterial);
+            List<List<IUiTween>> deselected = SetUITweens(this._defaultMaterial, hoverItem);
             foreach (var uiTweens in deselected)
             {
                 this._tweener.TweenAll(uiTweens, this._ease);   
             }
         }
 
-        private void SetHover()
+        private void SetHover(HoverItem hoverItem)
         {
-            List<List<IUiTween>> hovered = SetUITweens(this._hoverMaterial);
+            List<List<IUiTween>> hovered = SetUITweens(this._hoverMaterial, hoverItem);
             foreach (var uiTweens in hovered)
             {
                 this._tweener.TweenAll(uiTweens, this._ease);   
