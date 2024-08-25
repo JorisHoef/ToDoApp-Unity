@@ -107,19 +107,6 @@ namespace JorisHoef.UI.HoverSystem
             {
                 int j = this._chainItems.Count - i;
                 HoverItem chainItem = this._chainItems[j];
-
-                if(_staircaseMode)
-                {
-                    if (chainItem.IsHovered && chainItem == hoveredItem)
-                    {
-                        Debug.Log("Item already hovered");
-                        break;
-                    }
-                    else
-                    {
-                        
-                    }
-                }
                 
                 float interpolationFactor;
 
@@ -137,8 +124,21 @@ namespace JorisHoef.UI.HoverSystem
                     Color newTargetColor = Color.Lerp(this._defaultMaterial, targetColor, interpolationFactor);
                     chainItem.SetColor(newTargetColor, this._tweenDuration);
                 }
-
+                
                 uiTweens.Add(chainItem.SetAndGetTweens());
+                
+                if(_staircaseMode)
+                {
+                    if (chainItem.IsHovered && chainItem == hoveredItem)
+                    {
+                        Debug.Log("Item already hovered");
+                        break;
+                    }
+                    else
+                    {
+                        
+                    }
+                }
             }
             return uiTweens;
         }
