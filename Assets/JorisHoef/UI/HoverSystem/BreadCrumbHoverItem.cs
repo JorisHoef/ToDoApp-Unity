@@ -122,7 +122,6 @@ namespace JorisHoef.UI.HoverSystem
         private List<List<IUiTween>> SetColorForChainItems(Color targetColor, HoverItem hoveredItem)
         {
             var uiTweens = new List<List<IUiTween>>();
-            bool hoveredItemProcessed = false;
             
             for (int i = 1; i <= this._chainItems.Count; i++)
             {
@@ -141,13 +140,6 @@ namespace JorisHoef.UI.HoverSystem
                 if (_staircaseMode && chainItem.IsHovered && chainItem == hoveredItem)
                 {
                     Debug.Log("Item already hovered, but setting color before breaking.");
-                    hoveredItemProcessed = true;
-                    continue; //Continue to process the last color change before breaking
-                }
-                
-                //If the hovered item was processed, break after setting its color
-                if (hoveredItemProcessed)
-                {
                     break;
                 }
             }
@@ -201,7 +193,7 @@ namespace JorisHoef.UI.HoverSystem
             {
                 Deselect(hoverItem);
             }
-            else
+            else if (!this._isSelected && hoverItem.IsHovered)
             {
                 SetHover(hoverItem);
             }
