@@ -107,6 +107,7 @@ namespace ToDoAppUnity
             {
                 if (apiCallResult.IsSuccess)
                 {
+                    taskItem.UpdatedAt = apiCallResult.Data.UpdatedAt;
                     Debug.Log($"Successfully updated task item {apiCallResult.Data.Name}");
                 }
                 else
