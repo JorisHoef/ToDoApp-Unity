@@ -1,6 +1,6 @@
 namespace ToDoAppUnity.Tasks
 {
-    public enum TaskItemState
+    public enum TaskDataState
     {
         OPEN,
         CLOSED,

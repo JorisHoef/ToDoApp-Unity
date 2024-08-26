@@ -7,16 +7,15 @@ using ToDoAppUnity.Models;
 using ToDoAppUnity.Tasks;
 using UnityEngine;
 
-namespace ToDoAppUnity
+namespace ToDoAppUnity.TestStuff
 {
     public class TestAPI : MonoBehaviour
     {
         private readonly ApiServices _apiServices = new ApiServices();
         
-        private const string TEST_API_URL_SSL = "https://localhost:5001/api";
-        private const string TEST_API_URL = "http://localhost:5000/api";
-        private const string TEST_API_TASKITEMS = "taskitems";
-        private const long TEST_ID = 1;
+        private string TestApiUrlSsl => TestAPIConstants.TEST_API_URL_SSL;
+        private static string TestApiurl => TestAPIConstants.TEST_API_URL;
+        private static string TestAPITaskitems => TestAPIConstants.TEST_API_TASKITEMS;
         
         private void OnEnable()
         {
@@ -36,10 +35,10 @@ namespace ToDoAppUnity
 
         private IEnumerator GetTaskItemAsync(long idToGet)
         {
-            string endPoint = $"{TEST_API_URL}/{TEST_API_TASKITEMS}/{idToGet}";
-            yield return this._apiServices.GetAsync<TaskItem>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
+            string endPoint = $"{TestApiurl}/{TestAPITaskitems}/{idToGet}";
+            yield return this._apiServices.GetAsync<TaskData>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
             
-            void OnCompleted(ApiCallResult<TaskItem> apiCallResult)
+            void OnCompleted(ApiCallResult<TaskData> apiCallResult)
             {
                 if (apiCallResult.IsSuccess)
                 {
@@ -54,20 +53,20 @@ namespace ToDoAppUnity
 
         private IEnumerator GetAllTaskItemsAsync()
         {
-            string endPoint = $"{TEST_API_URL}/{TEST_API_TASKITEMS}";
-            yield return this._apiServices.GetAsync<List<TaskItem>>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
+            string endPoint = $"{TestApiurl}/{TestAPITaskitems}";
+            yield return this._apiServices.GetAsync<List<TaskData>>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
 
-            void OnCompleted(ApiCallResult<List<TaskItem>> apiCallResult)
+            void OnCompleted(ApiCallResult<List<TaskData>> apiCallResult)
             {
                 if (apiCallResult.IsSuccess)
                 {
                     Debug.Log($"API Call Completed: {apiCallResult.Data.Count}");
                     foreach (var taskItem in apiCallResult.Data)
                     {
-                        Debug.Log($"ID: {taskItem.Id}, Name: {taskItem.Name}, Description: {taskItem.TaskItemMessage?.Message}");
+                        Debug.Log($"ID: {taskItem.Id}, Name: {taskItem.Name}, Description: {taskItem.TaskDataMessage?.Message}");
                     }
-                    TaskItemManager.AllTaskItems.Clear();
-                    TaskItemManager.AllTaskItems.AddRange(apiCallResult.Data);
+                    TaskDataManager.AllTaskItems.Clear();
+                    TaskDataManager.AllTaskItems.AddRange(apiCallResult.Data);
                 }
                 else
                 {
@@ -78,15 +77,15 @@ namespace ToDoAppUnity
 
         private IEnumerator PostNewTaskItemAsync()
         {
-            string endPoint = $"{TEST_API_URL}/{TEST_API_TASKITEMS}";
-            var taskItem = TaskItemManager.AddNewTaskItemMessage();
-            yield return this._apiServices.PostAsync<TaskItem>(endPoint, taskItem, false).AsIEnumeratorWithCallback(OnCompleted);
+            string endPoint = $"{TestApiurl}/{TestAPITaskitems}";
+            var taskItem = TaskDataManager.AddNewTaskItemMessage();
+            yield return this._apiServices.PostAsync<TaskData>(endPoint, taskItem, false).AsIEnumeratorWithCallback(OnCompleted);
             
-            void OnCompleted(ApiCallResult<TaskItem> apiCallResult)
+            void OnCompleted(ApiCallResult<TaskData> apiCallResult)
             {
                 if (apiCallResult.IsSuccess)
                 {
-                    TaskItemManager.AllTaskItems.Add(apiCallResult.Data);
+                    TaskDataManager.AllTaskItems.Add(apiCallResult.Data);
                     Debug.Log($"Successfully created task item: {apiCallResult.Data.Name}");
                 }
                 else
@@ -98,12 +97,12 @@ namespace ToDoAppUnity
         
         private IEnumerator UpdateTaskItemAsync(long idToUpdate)
         {
-            string endPoint = $"{TEST_API_URL}/{TEST_API_TASKITEMS}/{idToUpdate}";
-            TaskItem taskItem = TaskItemManager.AllTaskItems.FirstOrDefault(x => x.Id == idToUpdate);
-            taskItem.TaskItemMessage.Message = "updated Task Item Test";
-            yield return this._apiServices.PutAsync<TaskItem>(endPoint, taskItem, false).AsIEnumeratorWithCallback(OnCompleted);
+            string endPoint = $"{TestApiurl}/{TestAPITaskitems}/{idToUpdate}";
+            TaskData taskItem = TaskDataManager.AllTaskItems.FirstOrDefault(x => x.Id == idToUpdate);
+            taskItem.TaskDataMessage.Message = "updated Task Item Test";
+            yield return this._apiServices.PutAsync<TaskData>(endPoint, taskItem, false).AsIEnumeratorWithCallback(OnCompleted);
             
-            void OnCompleted(ApiCallResult<TaskItem> apiCallResult)
+            void OnCompleted(ApiCallResult<TaskData> apiCallResult)
             {
                 if (apiCallResult.IsSuccess)
                 {
@@ -119,15 +118,15 @@ namespace ToDoAppUnity
         
         private IEnumerator DeleteTaskItemAsync(long idToDelete)
         {
-            string endPoint = $"{TEST_API_URL}/{TEST_API_TASKITEMS}/{idToDelete}";
-            yield return this._apiServices.DeleteAsync<TaskItem>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
+            string endPoint = $"{TestApiurl}/{TestAPITaskitems}/{idToDelete}";
+            yield return this._apiServices.DeleteAsync<TaskData>(endPoint, false).AsIEnumeratorWithCallback(OnCompleted);
             
-            void OnCompleted(ApiCallResult<TaskItem> apiCallResult)
+            void OnCompleted(ApiCallResult<TaskData> apiCallResult)
             {
                 if (apiCallResult.IsSuccess)
                 {
-                    var deletedTaskItem = TaskItemManager.AllTaskItems.FirstOrDefault(x => x.Id == idToDelete);
-                    TaskItemManager.AllTaskItems.Remove(deletedTaskItem);
+                    var deletedTaskItem = TaskDataManager.AllTaskItems.FirstOrDefault(x => x.Id == idToDelete);
+                    TaskDataManager.AllTaskItems.Remove(deletedTaskItem);
                     Debug.Log($"Successfully Deleted task item with ID {idToDelete}");
                 }
                 else

@@ -15,7 +15,7 @@ namespace JorisHoef.API.Services
         /// <param name="endpoint"></param>
         /// <param name="data"></param>
         /// <param name="requiresAuthentication"></param>
-        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="TResponse">The type we expect in the response</typeparam>
         /// <returns></returns>
         public Task<ApiCallResult<TResponse>> PostAsync<TResponse>(string endpoint, object data, bool requiresAuthentication)
         {
@@ -29,7 +29,7 @@ namespace JorisHoef.API.Services
         /// <param name="endpoint"></param>
         /// <param name="data"></param>
         /// <param name="requiresAuthentication"></param>
-        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="TResponse">The type we expect in the response</typeparam>
         /// <returns></returns>
         public Task<ApiCallResult<TResponse>> PostMultipartAsync<TResponse>(string endpoint, object data, bool requiresAuthentication)
         {
@@ -43,7 +43,7 @@ namespace JorisHoef.API.Services
         /// <param name="endpoint"></param>
         /// <param name="data"></param>
         /// <param name="requiresAuthentication"></param>
-        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="TResponse">The type we expect in the response</typeparam>
         /// <returns></returns>
         public Task<ApiCallResult<TResponse>> PutAsync<TResponse>(string endpoint, object data, bool requiresAuthentication)
         {
@@ -56,7 +56,7 @@ namespace JorisHoef.API.Services
         /// </summary>
         /// <param name="endpoint"></param>
         /// <param name="requiresAuthentication"></param>
-        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="TResponse">The type we expect in the response</typeparam>
         /// <returns></returns>
         public Task<ApiCallResult<TResponse>> GetAsync<TResponse>(string endpoint, bool requiresAuthentication)
         {
@@ -69,7 +69,7 @@ namespace JorisHoef.API.Services
         /// </summary>
         /// <param name="endpoint"></param>
         /// <param name="requiresAuthentication"></param>
-        /// <typeparam name="TResponse"></typeparam>
+        /// <typeparam name="TResponse">The type we expect in the response</typeparam>
         /// <returns></returns>
         public Task<ApiCallResult<TResponse>> DeleteAsync<TResponse>(string endpoint, bool requiresAuthentication)
         {

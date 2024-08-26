@@ -6,22 +6,25 @@ using ToDoAppUnity.Tasks;
 
 namespace ToDoAppUnity.Models
 {
-    public class TaskItem
+    /// <summary>
+    /// Datamodel object representing a Task
+    /// </summary>
+    public class TaskData
     {
-        public TaskItem(string name, TaskItemMessage taskItemMessage, ICollection<TaskItem> subTasks)
+        public TaskData(string name, TaskDataMessage taskDataMessage, ICollection<TaskData> subTasks)
         {
             this.Name = name;
-            this.TaskItemMessage = taskItemMessage;
+            this.TaskDataMessage = taskDataMessage;
             this.SubTasks = subTasks;
         }
         
         public long Id { get; set; }
         public string? Name { get; set; }
-        public TaskItemMessage? TaskItemMessage { get; set; }
+        public TaskDataMessage? TaskDataMessage { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public TaskItemState TaskItemState { get; set; } = TaskItemState.OPEN;
+        public TaskDataState TaskDataState { get; set; } = TaskDataState.OPEN;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public ICollection<TaskItem>? SubTasks { get; set; } = null;
+        public ICollection<TaskData>? SubTasks { get; set; } = null;
     }
 }
