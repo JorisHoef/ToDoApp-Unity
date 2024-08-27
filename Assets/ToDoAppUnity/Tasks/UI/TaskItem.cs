@@ -12,11 +12,11 @@ namespace ToDoAppUnity.Tasks.UI
     public class TaskItem : MonoBehaviour
     {
         [SerializeField] private TMP_InputField _taskNameInputField;
-        [SerializeField] private Button _finishButton;
+        [SerializeField] private Button _taskStateButton;
         [SerializeField] private Button _deleteButton;
         
         private TaskItemManager _parentTaskItemManager;
-        private string _cachedValue;
+        private string _cachedNameValue;
 
         private TaskData TaskData { get; set; }
 
@@ -25,6 +25,7 @@ namespace ToDoAppUnity.Tasks.UI
             _taskNameInputField.onSelect.AddListener(CacheOldNameValue);
             _taskNameInputField.onSubmit.AddListener(UpdateTaskName);
             _deleteButton.onClick.AddListener(OnDeleteClicked);
+            _taskStateButton.onClick.AddListener(OnTaskStateClicked);
         }
 
         private void OnDisable()
@@ -32,6 +33,7 @@ namespace ToDoAppUnity.Tasks.UI
             _taskNameInputField.onSelect.RemoveListener(CacheOldNameValue);
             _taskNameInputField.onSubmit.RemoveListener(UpdateTaskName);
             _deleteButton.onClick.RemoveListener(OnDeleteClicked);
+            _taskStateButton.onClick.RemoveListener(OnTaskStateClicked);
         }
 
         public void Initialize(TaskData taskData, TaskItemManager taskItemManager)
@@ -40,7 +42,7 @@ namespace ToDoAppUnity.Tasks.UI
             _parentTaskItemManager = taskItemManager;
             SetUIData(taskData);
         }
-
+        
         private void SetUIData(TaskData taskData)
         {
             _taskNameInputField.text = taskData.Name;
@@ -48,24 +50,42 @@ namespace ToDoAppUnity.Tasks.UI
 
         private void CacheOldNameValue(string currentString)
         {
-            _cachedValue = currentString;
+            _cachedNameValue = currentString;
         }
         
         private void UpdateTaskName(string newNameValue)
         {
             TaskData.Name = newNameValue;
-            StartCoroutine(_parentTaskItemManager.ApiCaller.UpdateTaskItemAsync(TaskData.Id, TaskData, OnSuccess, OnFail));
-
-            void OnSuccess(TaskData taskData)
+            UpdateTaskItem(TaskData);
+        }
+        
+        private void OnTaskStateClicked()
+        {
+            TaskData.TaskDataState = TaskData.TaskDataState switch
             {
-                TaskData = taskData;
-                Debug.Log($"Success updating: {taskData.Name}");
+                    TaskDataState.OPEN   => TaskDataState.CLOSED,
+                    TaskDataState.CLOSED => TaskDataState.OPEN,
+                    TaskDataState.STALE => TaskDataState.CLOSED,
+                    _                    => TaskData.TaskDataState
+            };
+            
+            UpdateTaskItem(TaskData);
+        }
+
+        private void UpdateTaskItem(TaskData taskData)
+        {
+            StartCoroutine(_parentTaskItemManager.ApiCaller.UpdateTaskItemAsync(taskData.Id, taskData, OnSuccess, OnFail));
+            
+            void OnSuccess(TaskData returnedTaskData)
+            {
+                TaskData = returnedTaskData;
+                Debug.Log($"Success updating: {returnedTaskData.Name} with state {returnedTaskData.TaskDataState}");
             }
 
             void OnFail(Exception exception)
             {
-                TaskData.Name = _cachedValue;
-                _taskNameInputField.text = _cachedValue;
+                TaskData.Name = _cachedNameValue;
+                _taskNameInputField.text = _cachedNameValue;
                 Debug.LogError($"Couldn't update task item: {exception.Message}");
             }
         }
