@@ -74,7 +74,7 @@ namespace ToDoAppUnity.Tasks.UI
             
             void OnSuccess(TaskData dataResponse)
             {
-                Debug.Log($"Successfully created task: {dataResponse.Name}");
+                Debug.Log($"Successfully created task: {dataResponse.Name} {dataResponse.TaskDataState}");
                 SetupTaskItem(dataResponse);
             }
 
