@@ -1,4 +1,5 @@
 using System;
+using JorisHoef.UI;
 using TMPro;
 using ToDoAppUnity.Models;
 using UnityEngine;
@@ -13,7 +14,9 @@ namespace ToDoAppUnity.Tasks.UI
     {
         [SerializeField] private TMP_InputField _taskNameInputField;
         [SerializeField] private Button _taskStateButton;
+        [SerializeField] private Button _dropDownButton;
         [SerializeField] private Button _deleteButton;
+        [SerializeField] private VisibilityController _taskDetailContainer;
         
         private TaskItemManager _parentTaskItemManager;
         private string _cachedNameValue;
@@ -26,6 +29,7 @@ namespace ToDoAppUnity.Tasks.UI
             _taskNameInputField.onSubmit.AddListener(UpdateTaskName);
             _deleteButton.onClick.AddListener(OnDeleteClicked);
             _taskStateButton.onClick.AddListener(OnTaskStateClicked);
+            _dropDownButton.onClick.AddListener(OnDropdownClicked);
         }
 
         private void OnDisable()
@@ -34,6 +38,7 @@ namespace ToDoAppUnity.Tasks.UI
             _taskNameInputField.onSubmit.RemoveListener(UpdateTaskName);
             _deleteButton.onClick.RemoveListener(OnDeleteClicked);
             _taskStateButton.onClick.RemoveListener(OnTaskStateClicked);
+            _dropDownButton.onClick.RemoveListener(OnDropdownClicked);
         }
 
         public void Initialize(TaskData taskData, TaskItemManager taskItemManager)
@@ -57,6 +62,11 @@ namespace ToDoAppUnity.Tasks.UI
         {
             TaskData.Name = newNameValue;
             UpdateTaskItem(TaskData);
+        }
+        
+        private void OnDropdownClicked()
+        {
+            _taskDetailContainer.SetState();
         }
         
         private void OnTaskStateClicked()
