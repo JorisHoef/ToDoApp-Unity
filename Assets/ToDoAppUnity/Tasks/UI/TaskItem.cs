@@ -17,6 +17,7 @@ namespace ToDoAppUnity.Tasks.UI
         [SerializeField] private Button _dropDownButton;
         [SerializeField] private Button _deleteButton;
         [SerializeField] private VisibilityController _taskDetailContainer;
+        [SerializeField] private TaskItemDetails _taskDetailsContainer;
         
         private TaskItemManager _parentTaskItemManager;
         private string _cachedNameValue;
@@ -45,6 +46,7 @@ namespace ToDoAppUnity.Tasks.UI
         {
             TaskData = taskData;
             _parentTaskItemManager = taskItemManager;
+            _taskDetailsContainer.Initialize(taskData, _parentTaskItemManager);
             SetUIData(taskData);
         }
         
@@ -89,6 +91,7 @@ namespace ToDoAppUnity.Tasks.UI
             void OnSuccess(TaskData returnedTaskData)
             {
                 TaskData = returnedTaskData;
+                _taskDetailsContainer.Initialize(TaskData, _parentTaskItemManager);
                 Debug.Log($"Success updating: {returnedTaskData.Name} with state {returnedTaskData.TaskDataState}");
             }
 
