@@ -16,6 +16,7 @@ namespace ToDoAppUnity.Tasks.UI
         [SerializeField] private Button _createTaskButton;
         
         private readonly TaskApiCaller _taskApiCaller = new TaskApiCaller();
+        private readonly TaskCreator _taskCreator = new TaskCreator();
         
         public TaskApiCaller ApiCaller => _taskApiCaller;
         
@@ -44,7 +45,7 @@ namespace ToDoAppUnity.Tasks.UI
             StartCoroutine(_taskApiCaller.GetAllTaskItemsAsync(OnSuccess, OnFail));
             
             void OnSuccess(List<TaskData> taskDatas)
-            {
+            { 
                 PopulateTasksList(taskDatas);
             }
 
@@ -58,24 +59,24 @@ namespace ToDoAppUnity.Tasks.UI
         {
             foreach (var taskData in taskDatas)
             {
-                SetupTaskItem(taskData);
+                SetupTaskItem(taskData, _taskItemContainer);
             }
         }
         
         private void OnCreateTaskClicked()
         {
-            TaskData taskData = new TaskData("New Task", null, null);
-            AddTaskItem(taskData);
+            var taskData = _taskCreator.CreateTask();
+            AddTaskItem(taskData, _taskItemContainer);
         }
         
-        private void AddTaskItem(TaskData taskData)
+        public void AddTaskItem(TaskData taskData, RectTransform taskContainer)
         {
             StartCoroutine(_taskApiCaller.PostNewTaskItemAsync(taskData, OnSuccess, OnFail));
             
             void OnSuccess(TaskData dataResponse)
             {
                 Debug.Log($"Successfully created task: {dataResponse.Name} {dataResponse.TaskDataState}");
-                SetupTaskItem(dataResponse);
+                SetupTaskItem(dataResponse, taskContainer);
             }
 
             void OnFail(Exception exception)
@@ -84,9 +85,9 @@ namespace ToDoAppUnity.Tasks.UI
             }
         }
 
-        private void SetupTaskItem(TaskData taskData)
+        private void SetupTaskItem(TaskData taskData, RectTransform taskContainer)
         {
-            TaskItem newTaskItem = GameObject.Instantiate(_taskItemPrefab, _taskItemContainer);
+            TaskItem newTaskItem = GameObject.Instantiate(_taskItemPrefab, taskContainer);
             newTaskItem.Initialize(taskData, this);
         }
     }

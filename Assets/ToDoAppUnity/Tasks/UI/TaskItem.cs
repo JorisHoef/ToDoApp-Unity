@@ -45,8 +45,8 @@ namespace ToDoAppUnity.Tasks.UI
         public void Initialize(TaskData taskData, TaskItemManager taskItemManager)
         {
             TaskData = taskData;
-            _parentTaskItemManager = taskItemManager;
-            _taskDetailsContainer.Initialize(taskData, _parentTaskItemManager);
+            _parentTaskItemManager = taskItemManager; 
+            _taskDetailsContainer.Initialize(this, taskData, _parentTaskItemManager);
             SetUIData(taskData);
         }
         
@@ -84,14 +84,14 @@ namespace ToDoAppUnity.Tasks.UI
             UpdateTaskItem(TaskData);
         }
 
-        private void UpdateTaskItem(TaskData taskData)
+        public void UpdateTaskItem(TaskData taskData)
         {
             StartCoroutine(_parentTaskItemManager.ApiCaller.UpdateTaskItemAsync(taskData.Id, taskData, OnSuccess, OnFail));
             
             void OnSuccess(TaskData returnedTaskData)
             {
                 TaskData = returnedTaskData;
-                _taskDetailsContainer.Initialize(TaskData, _parentTaskItemManager);
+                _taskDetailsContainer.Initialize(this, TaskData, _parentTaskItemManager);
                 Debug.Log($"Success updating: {returnedTaskData.Name} with state {returnedTaskData.TaskDataState}");
             }
 
