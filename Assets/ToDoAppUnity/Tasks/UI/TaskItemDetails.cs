@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using JorisHoef.UI;
 using TMPro;
 using ToDoAppUnity.Models;
 using UnityEngine;
@@ -14,9 +15,14 @@ namespace ToDoAppUnity.Tasks.UI
         [SerializeField] private RectTransform _subTasksContainer;
         [SerializeField] private TaskItem _taskItemPrefab;
         [SerializeField] private Button _addSubTaskButton;
+        [SerializeField] private VisibilityController _visibilityController;
         
         private readonly TaskCreator _taskCreator = new TaskCreator();
         private TaskItemManager _parentTaskItemManager;
+
+        private List<TaskData> _initializedSubtasks;
+        
+        public VisibilityController VisibilityController => _visibilityController;
         
         private TaskItem TaskItem { get; set; }
         private TaskData TaskData { get; set; }
@@ -45,24 +51,26 @@ namespace ToDoAppUnity.Tasks.UI
             _updatedAtText.text = taskData.UpdatedAt.ToString(CultureInfo.InvariantCulture);
 
             if (taskData.SubTasks == null) return;
-
+            _initializedSubtasks ??= new List<TaskData>();
+            
             foreach (var subTaskData in taskData.SubTasks)
             {
+                if(_initializedSubtasks.Contains(subTaskData)) continue;
+                
                 var newTaskGo = GameObject.Instantiate(_taskItemPrefab, _subTasksContainer);
                 newTaskGo.Initialize(subTaskData, _parentTaskItemManager);
+                _initializedSubtasks.Add(subTaskData);
             }
         }
         
         private void OnAddSubtaskClicked()
         { 
-            var taskData = _taskCreator.CreateTask(); 
-            TaskData.SubTasks ??= new List<TaskData>()
-            {
-                    taskData
-            };
-            
-            TaskItem.UpdateTaskItem(TaskData);
-            _parentTaskItemManager.AddTaskItem(taskData, _subTasksContainer);
+            var subTaskData = _taskCreator.CreateTask();
+            subTaskData.ParentTaskId = TaskData.Id;
+            TaskData.SubTasks ??= new List<TaskData>();
+            TaskData.SubTasks.Add(subTaskData);
+            TaskItem.UpdateTaskItem(TaskData); 
+            _parentTaskItemManager.AddTaskItem(subTaskData, _subTasksContainer);
         }
     }
 }

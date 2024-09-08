@@ -18,6 +18,7 @@ namespace ToDoAppUnity.Tasks.UI
         private readonly TaskApiCaller _taskApiCaller = new TaskApiCaller();
         private readonly TaskCreator _taskCreator = new TaskCreator();
         
+        public List<TaskData> AllTaskDatas { get; set; }
         public TaskApiCaller ApiCaller => _taskApiCaller;
         
         private void Awake()
@@ -35,9 +36,37 @@ namespace ToDoAppUnity.Tasks.UI
             _createTaskButton.onClick.RemoveListener(OnCreateTaskClicked);
         }
 
-        public void DeleteTaskItem(TaskItem taskItem)
+        public void AddTaskItem(TaskData taskData, RectTransform taskContainer)
         {
-            GameObject.Destroy(taskItem.gameObject);
+            StartCoroutine(_taskApiCaller.PostNewTaskItemAsync(taskData, OnSuccess, OnFail));
+            
+            void OnSuccess(TaskData dataResponse)
+            {
+                Debug.Log($"Successfully created task: {dataResponse.Name} {dataResponse.TaskDataState}");
+                SetupTaskItem(dataResponse, taskContainer);
+            }
+
+            void OnFail(Exception exception)
+            {
+                Debug.LogError($"Failed to create task item {exception}");
+            }
+        }
+        
+        public void DeleteTaskItem(TaskData taskData, TaskItem taskItem)
+        {
+            StartCoroutine(ApiCaller.DeleteTaskItemAsync(taskData.Id, OnSuccess, OnFail));
+            
+            void OnSuccess(TaskData returnedTaskData)
+            {
+                Debug.Log($"Success Deleting: {taskData.Name}");
+                GameObject.Destroy(taskItem.gameObject);
+                AllTaskDatas.Remove(taskData);
+            }
+
+            void OnFail(Exception exception)
+            {
+                Debug.LogError($"Couldn't Delete item: {exception.Message}");
+            }
         }
         
         private void SetupAllTaskDatas()
@@ -57,8 +86,12 @@ namespace ToDoAppUnity.Tasks.UI
         
         private void PopulateTasksList(List<TaskData> taskDatas)
         {
+            AllTaskDatas = taskDatas;
             foreach (var taskData in taskDatas)
             {
+                //TODO: implement os we don't spawn child tasks as their own main tasks
+                if (taskData.ParentTaskId != null) continue;
+                
                 SetupTaskItem(taskData, _taskItemContainer);
             }
         }
@@ -67,22 +100,6 @@ namespace ToDoAppUnity.Tasks.UI
         {
             var taskData = _taskCreator.CreateTask();
             AddTaskItem(taskData, _taskItemContainer);
-        }
-        
-        public void AddTaskItem(TaskData taskData, RectTransform taskContainer)
-        {
-            StartCoroutine(_taskApiCaller.PostNewTaskItemAsync(taskData, OnSuccess, OnFail));
-            
-            void OnSuccess(TaskData dataResponse)
-            {
-                Debug.Log($"Successfully created task: {dataResponse.Name} {dataResponse.TaskDataState}");
-                SetupTaskItem(dataResponse, taskContainer);
-            }
-
-            void OnFail(Exception exception)
-            {
-                Debug.LogError($"Failed to create task item {exception}");
-            }
         }
 
         private void SetupTaskItem(TaskData taskData, RectTransform taskContainer)

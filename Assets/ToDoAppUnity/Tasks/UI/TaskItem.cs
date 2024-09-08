@@ -1,5 +1,4 @@
 using System;
-using JorisHoef.UI;
 using TMPro;
 using ToDoAppUnity.Models;
 using UnityEngine;
@@ -16,7 +15,6 @@ namespace ToDoAppUnity.Tasks.UI
         [SerializeField] private Button _taskStateButton;
         [SerializeField] private Button _dropDownButton;
         [SerializeField] private Button _deleteButton;
-        [SerializeField] private VisibilityController _taskDetailContainer;
         [SerializeField] private TaskItemDetails _taskDetailsContainer;
         
         private TaskItemManager _parentTaskItemManager;
@@ -43,11 +41,30 @@ namespace ToDoAppUnity.Tasks.UI
         }
 
         public void Initialize(TaskData taskData, TaskItemManager taskItemManager)
-        {
+        { 
             TaskData = taskData;
             _parentTaskItemManager = taskItemManager; 
             _taskDetailsContainer.Initialize(this, taskData, _parentTaskItemManager);
             SetUIData(taskData);
+        }
+        
+        public void UpdateTaskItem(TaskData taskData)
+        {
+            StartCoroutine(_parentTaskItemManager.ApiCaller.UpdateTaskItemAsync(taskData.Id, taskData, OnSuccess, OnFail));
+            
+            void OnSuccess(TaskData returnedTaskData)
+            {
+                Debug.Log($"Success updating: {returnedTaskData.Name} with state {returnedTaskData.TaskDataState}");
+                TaskData = returnedTaskData;
+                _taskDetailsContainer.Initialize(this, TaskData, _parentTaskItemManager);
+            }
+
+            void OnFail(Exception exception)
+            {
+                Debug.LogError($"Couldn't update task item: {exception.Message}");
+                TaskData.Name = _cachedNameValue;
+                _taskNameInputField.text = _cachedNameValue;
+            }
         }
         
         private void SetUIData(TaskData taskData)
@@ -68,7 +85,7 @@ namespace ToDoAppUnity.Tasks.UI
         
         private void OnDropdownClicked()
         {
-            _taskDetailContainer.SetState();
+            _taskDetailsContainer.VisibilityController.SetState();
         }
         
         private void OnTaskStateClicked()
@@ -77,46 +94,16 @@ namespace ToDoAppUnity.Tasks.UI
             {
                     TaskDataState.OPEN   => TaskDataState.CLOSED,
                     TaskDataState.CLOSED => TaskDataState.OPEN,
-                    TaskDataState.STALE => TaskDataState.CLOSED,
+                    TaskDataState.STALE  => TaskDataState.CLOSED,
                     _                    => TaskData.TaskDataState
             };
             
             UpdateTaskItem(TaskData);
         }
-
-        public void UpdateTaskItem(TaskData taskData)
-        {
-            StartCoroutine(_parentTaskItemManager.ApiCaller.UpdateTaskItemAsync(taskData.Id, taskData, OnSuccess, OnFail));
-            
-            void OnSuccess(TaskData returnedTaskData)
-            {
-                TaskData = returnedTaskData;
-                _taskDetailsContainer.Initialize(this, TaskData, _parentTaskItemManager);
-                Debug.Log($"Success updating: {returnedTaskData.Name} with state {returnedTaskData.TaskDataState}");
-            }
-
-            void OnFail(Exception exception)
-            {
-                TaskData.Name = _cachedNameValue;
-                _taskNameInputField.text = _cachedNameValue;
-                Debug.LogError($"Couldn't update task item: {exception.Message}");
-            }
-        }
         
         private void OnDeleteClicked()
         {
-            StartCoroutine(_parentTaskItemManager.ApiCaller.DeleteTaskItemAsync(TaskData.Id, OnSuccess, OnFail));
-            
-            void OnSuccess(TaskData taskData)
-            {
-                Debug.Log($"Success Deleting: {TaskData.Name}");
-                _parentTaskItemManager.DeleteTaskItem(this);
-            }
-
-            void OnFail(Exception exception)
-            {
-                Debug.LogError($"Couldn't Delete item: {exception.Message}");
-            }
+            _parentTaskItemManager.DeleteTaskItem(TaskData, this);
         }
     }
 }

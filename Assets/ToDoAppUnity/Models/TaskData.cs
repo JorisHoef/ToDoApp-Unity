@@ -28,5 +28,21 @@ namespace ToDoAppUnity.Models
         public DateTime CompletedAt { get; set; }
         public DateTime DeadlineAt { get; set; }
         public ICollection<TaskData>? SubTasks { get; set; } = null;
+
+        public long? ParentTaskId { get; set; } = null;
+        
+        public override bool Equals(object obj)
+        {
+            if (obj is not TaskData taskData)
+            {
+                return false;
+            }
+            return this.Id == taskData.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 }
