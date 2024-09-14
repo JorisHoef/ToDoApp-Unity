@@ -63,6 +63,7 @@ namespace ToDoAppUnity.Tasks.UI
             }
         }
         
+        //todo: issue is that we still spawn subtasks that have nothing to do with this subtask INSIDE this subtask
         private void OnAddSubtaskClicked()
         { 
             var subTaskData = _taskCreator.CreateTask();
@@ -70,7 +71,7 @@ namespace ToDoAppUnity.Tasks.UI
             TaskData.SubTasks ??= new List<TaskData>();
             TaskData.SubTasks.Add(subTaskData);
             TaskItem.UpdateTaskItem(TaskData); 
-            _parentTaskItemManager.AddTaskItem(subTaskData, _subTasksContainer);
+            //_parentTaskItemManager.AddTaskItem(subTaskData, _subTasksContainer);
         }
     }
 }

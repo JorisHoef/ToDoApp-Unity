@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -22,24 +23,24 @@ namespace JorisHoef.API.Services.Base
                 var apiCall = new ApiCall<TResponse>(endpoint, this.HttpMethod, data, requiresAuthentication);
 
                 ApiCallResult<TResponse> result = await apiCall.Execute();
-                
+        
                 if (!result.IsSuccess)
                 {
                     this.HandleApiFailure(result, endpoint);
                 }
-                
+
                 return new ApiCallResult<TResponse>
                 {
                         IsSuccess = result.IsSuccess,
                         Data = result.IsSuccess ? result.Data : default,
-                        ErrorMessage = result.ErrorMessage,
-                        Exception = result.Exception, 
+                        ErrorMessage = result.IsSuccess ? null : result.ErrorMessage,
+                        Exception = result.Exception,
                         HttpMethod = this.HttpMethod
                 };
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogError($"Exception occurred while making API call to {endpoint}: {ex.Message}\nStack Trace: {ex.StackTrace}");
 
                 return new ApiCallResult<TResponse>
                 {
@@ -53,14 +54,23 @@ namespace JorisHoef.API.Services.Base
 
         protected void HandleApiFailure(ApiCallResult<TResponse> result, string endpoint)
         {
-            if(result == null)
+            if (result == null)
             {
-                Debug.LogError($"Error making API call to {endpoint} : Result is null, likely due to a failed API call or a null response.");
+                Debug.LogError($"Error making API call to {endpoint}: Result is null, likely due to a failed API call or a null response.");
             }
             else
             {
-                Debug.LogError($" Error making API call to {endpoint} and {result.HttpMethod} - Message: {result.ErrorMessage} - Exception: {result.Exception}");
+                var errorMessage = string.IsNullOrEmpty(result.ErrorMessage) ? "No error message provided" : result.ErrorMessage;
+                var exceptionDetails = result.Exception?.ToString() ?? "No exception details available";
+
+                Debug.LogError($"Error making API call to {endpoint} - HTTP Method: {result.HttpMethod} - Message: {errorMessage} - Exception: {exceptionDetails}");
+                
+                if (result.Exception is HttpRequestException httpRequestException)
+                {
+                    Debug.LogError($"HTTP Request Error: {httpRequestException.Message}");
+                }
             }
         }
+
     }
 }

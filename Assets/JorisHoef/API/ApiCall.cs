@@ -28,7 +28,6 @@ namespace JorisHoef.API
         {
             string tokenToSend = AccessToken;
 
-            // Not logged in return early
             if (string.IsNullOrEmpty(tokenToSend) && _requiresAuthentication)
             {
                 return new ApiCallResult<TResponse>
@@ -50,18 +49,18 @@ namespace JorisHoef.API
                         return new ApiCallResult<TResponse>
                         {
                             IsSuccess = false,
-                            ErrorMessage = $"Connection error: {webRequest.error} ResponseCode : {webRequest.responseCode}",
+                            ErrorMessage = $"Connection error: {webRequest.error} ResponseCode: {webRequest.responseCode}",
                             HttpMethod = _method,
                         };
                     }
                     else if (webRequest.result == UnityWebRequest.Result.ProtocolError)
                     {
-                        // Parse error message from the response body
                         string errorMessage = await ExtractErrorMessage(webRequest);
+                        string responseText = webRequest.downloadHandler?.text ?? "No response text available";
                         return new ApiCallResult<TResponse>
                         {
                             IsSuccess = false,
-                            ErrorMessage = $"HTTP error, status code {webRequest.responseCode}: {errorMessage}",
+                            ErrorMessage = $"HTTP error, status code {webRequest.responseCode}: {errorMessage}. Response: {responseText}",
                             HttpMethod = _method
                         };
                     }
@@ -73,17 +72,18 @@ namespace JorisHoef.API
                 catch (Exception ex)
                 {
                     string errorMessage = await ExtractErrorMessage(webRequest);
+                    string responseText = webRequest.downloadHandler?.text ?? "No response text available";
                     return new ApiCallResult<TResponse>
                     {
                         IsSuccess = false,
-                        ErrorMessage = errorMessage ?? $"Exception during web request: {ex.Message}",
+                        ErrorMessage = $"Exception during web request: {errorMessage ?? ex.Message}. Response: {responseText}",
                         Exception = ex,
                         HttpMethod = _method
                     };
                 }
             }
         }
-        
+
         protected virtual UnityWebRequest PrepareRequest(string tokenToSend)
         {
             try
@@ -101,7 +101,7 @@ namespace JorisHoef.API
                 }
 
                 webRequest.SetRequestHeader("Accept", "application/json");
-        
+
                 if (!string.IsNullOrEmpty(tokenToSend))
                 {
                     webRequest.SetRequestHeader("Authorization", $"Bearer {tokenToSend}");
@@ -149,19 +149,16 @@ namespace JorisHoef.API
             {
                 if (!string.IsNullOrWhiteSpace(rawResponse))
                 {
-                    try
-                    {
-                        return JsonConvert.DeserializeObject<TResponse>(rawResponse);
-                    }
-                    catch (JsonSerializationException ex)
-                    {
-                        throw new Exception($"Error in JSON deserialization: {ex.Message}", ex);
-                    }
+                    return JsonConvert.DeserializeObject<TResponse>(rawResponse);
                 }
                 else
                 {
                     throw new Exception("No response received from the server");
                 }
+            }
+            catch (JsonSerializationException ex)
+            {
+                throw new Exception($"Error in JSON deserialization: {ex.Message}", ex);
             }
             catch (JsonException ex)
             {
@@ -173,10 +170,21 @@ namespace JorisHoef.API
         {
             try
             {
-                if (!string.IsNullOrEmpty(sentRequest.downloadHandler.text))
+                if (!string.IsNullOrEmpty(sentRequest.downloadHandler?.text))
                 {
                     var errorResponse = JsonConvert.DeserializeObject<JObject>(sentRequest.downloadHandler.text);
-                    return Task.FromResult(errorResponse["error"]?.ToString() ?? "Unknown error");
+                    // Check if the error response contains detailed error information
+                    if (errorResponse != null)
+                    {
+                        string errors = errorResponse["errors"]?.ToString() ?? "No detailed errors found";
+                        string title = errorResponse["title"]?.ToString();
+                        if (!string.IsNullOrEmpty(title))
+                        {
+                            errors = $"{title}: {errors}";
+                        }
+                        return Task.FromResult(errors);
+                    }
+                    return Task.FromResult("No detailed error message found");
                 }
                 return Task.FromResult("No error message received");
             }
@@ -185,12 +193,7 @@ namespace JorisHoef.API
                 return Task.FromResult($"Error parsing error message: {ex.Message}");
             }
         }
-        
-        /// <summary>
-        /// TaskWrapper for Unity WebRequest
-        /// </summary>
-        /// <param name="webRequest"></param>
-        /// <returns></returns>
+
         private Task SendRequestAsync(UnityWebRequest webRequest)
         {
             var completionSource = new TaskCompletionSource<object>();

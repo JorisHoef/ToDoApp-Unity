@@ -7,7 +7,7 @@ using ToDoAppUnity.Tasks;
 namespace ToDoAppUnity.Models
 {
     /// <summary>
-    /// Datamodel object representing a Task
+    /// Data model object representing a Task
     /// </summary>
     public class TaskData
     {
@@ -18,19 +18,37 @@ namespace ToDoAppUnity.Models
             this.SubTasks = subTasks;
         }
         
+        [JsonProperty("id")]
         public long Id { get; set; }
+        
+        [JsonProperty("name")]
         public string? Name { get; set; }
+        
+        [JsonProperty("taskItemMessage")]
         public TaskDataMessage? TaskDataMessage { get; set; }
+        
+        [JsonProperty("taskDataState")]
         [JsonConverter(typeof(StringEnumConverter))]
         public TaskDataState TaskDataState { get; set; } = TaskDataState.OPEN;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public DateTime CompletedAt { get; set; }
-        public DateTime DeadlineAt { get; set; }
-        public ICollection<TaskData>? SubTasks { get; set; } = null;
-
-        public long? ParentTaskId { get; set; } = null;
         
+        [JsonProperty("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
+        [JsonProperty("updatedAt")]
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        
+        [JsonProperty("completedAt")]
+        public DateTime CompletedAt { get; set; }
+        
+        [JsonProperty("deadlineAt")]
+        public DateTime DeadlineAt { get; set; }
+        
+        [JsonProperty("subTasks")]
+        public ICollection<TaskData>? SubTasks { get; set; } = null;
+        
+        [JsonProperty("parentTaskId")]
+        public long? ParentTaskId { get; set; } = null;
+
         public override bool Equals(object obj)
         {
             if (obj is not TaskData taskData)

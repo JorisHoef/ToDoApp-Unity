@@ -71,6 +71,7 @@ namespace ToDoAppUnity.Tasks.UI
         
         private void SetupAllTaskDatas()
         {
+            Debug.Log($"SETTING UP TASKDATAS");
             StartCoroutine(_taskApiCaller.GetAllTaskItemsAsync(OnSuccess, OnFail));
             
             void OnSuccess(List<TaskData> taskDatas)
