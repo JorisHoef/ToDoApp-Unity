@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using ToDoAppUnity.Tasks;
 
 namespace ToDoAppUnity.Models
@@ -16,6 +15,8 @@ namespace ToDoAppUnity.Models
             this.Name = name;
             this.TaskDataMessage = taskDataMessage;
             this.SubTasks = subTasks;
+            this.CreatedAt = DateTime.UtcNow;
+            this.UpdatedAt = DateTime.UtcNow;
         }
         
         [JsonProperty("id")]
@@ -28,20 +29,19 @@ namespace ToDoAppUnity.Models
         public TaskDataMessage? TaskDataMessage { get; set; }
         
         [JsonProperty("taskDataState")]
-        [JsonConverter(typeof(StringEnumConverter))]
         public TaskDataState TaskDataState { get; set; } = TaskDataState.OPEN;
         
         [JsonProperty("createdAt")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
         
         [JsonProperty("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; }
         
         [JsonProperty("completedAt")]
-        public DateTime CompletedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
         
         [JsonProperty("deadlineAt")]
-        public DateTime DeadlineAt { get; set; }
+        public DateTime? DeadlineAt { get; set; }
         
         [JsonProperty("subTasks")]
         public ICollection<TaskData>? SubTasks { get; set; } = null;
