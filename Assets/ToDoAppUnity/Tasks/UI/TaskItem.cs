@@ -46,6 +46,7 @@ namespace ToDoAppUnity.Tasks.UI
             _parentTaskItemManager = taskItemManager; 
             _taskDetailsContainer.Initialize(this, taskData, _parentTaskItemManager);
             SetUIData(taskData);
+            LogSubtasks(taskData);
         }
         
         public void UpdateTaskItem(TaskData taskData)
@@ -64,6 +65,23 @@ namespace ToDoAppUnity.Tasks.UI
                 Debug.LogError($"Couldn't update task item: {exception.Message}");
                 TaskData.Name = _cachedNameValue;
                 _taskNameInputField.text = _cachedNameValue;
+            }
+        }
+
+        private void LogSubtasks(TaskData taskData)
+        {
+            if (taskData.SubTasks == null)
+            {
+                Debug.Log($"No subtasks found for task: {taskData.Name}");
+                return;
+            }
+            foreach (var subTask in taskData.SubTasks)
+            {
+                Debug.Log($"Subtask: {subTask.Name} from ParentTask: {taskData.Name}");
+                if (subTask.SubTasks?.Count > 0)
+                {
+                    LogSubtasks(subTask);
+                }
             }
         }
         
